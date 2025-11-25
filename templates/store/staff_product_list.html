@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    /* --- GLOBAL VARIABLES & RESET --- */
+    :root {
+        --primary: #2152ff;
+        --text-dark: #344767;
+        --text-gray: #8392ab;
+        --bg-body: #f5f7fb;
+        /* MÀU NHẤN CHỦ ĐẠO */
+        --accent-gradient: linear-gradient(310deg, var(--primary) 0%, #21d4fd 100%);
+        --accent-color: var(--primary);
+    }
+    body { font-family: 'Poppins', sans-serif; color: var(--text-dark); background-color: var(--bg-body); }
+
+    /* --- ANIMATIONS --- */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+
+    /* --- CARD STYLING --- */
+    .card { border: none; border-radius: 20px; background: #fff; box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03); transition: 0.3s ease; overflow: hidden; }
+    .card:hover { box-shadow: 0 1rem 3rem rgba(33, 82, 255, 0.15); }
+
+    /* --- TABLE STYLING --- */
+    .table thead th { background-color: #fff; color: var(--text-gray); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f0f2f5; padding: 1.2rem 1.5rem; }
+    .table tbody td { vertical-align: middle; padding: 1.2rem 1.5rem; border-top: 1px solid #f1f4f8; font-size: 0.9rem; color: var(--text-dark); font-weight: 500; }
+
+    .table-hover tbody tr:hover { background-color: #f8faff; }
+
+    /* COMPONENTS */
+    .btn-add-product {
+        background: linear-gradient(310deg, var(--primary) 0%, #21d4fd 100%);
+        color: white; border: none;
+        border-radius: 50px;
+        padding: 12px 25px;
+        font-weight: 600;
+        box-shadow: 0 4px 7px rgba(33, 82, 255, 0.3);
+        transition: 0.3s;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-add-product:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(33, 82, 255, 0.4);
+        color: white;
+    }
+
+    /* KHÔI PHỤC NÚT CATEGORY MANAGEMENT MÀU CAM */
+    .btn-category-management {
+        background-color: #ff9900;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 12px 20px;
+        font-weight: 600;
+        box-shadow: 0 4px 7px rgba(255, 153, 0, 0.3);
+        transition: 0.3s;
+        margin-right: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-category-management:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(255, 153, 0, 0.4);
+        color: white;
+    }
+
+    .icon-shape { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+
+    .badge-soft-info { background-color: #e0fffa; color: #0dcaf0; padding: 0.6em 1em; border-radius: 8px; font-weight: 600; font-size: 0.75rem;}
+
+    .action-btn { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; transition: 0.2s; border: 1px solid transparent; }
+    .action-btn:hover { background: #f5f7fb; border-color: #e9ecef; }
+</style>
+
+<section class="section-content padding-y" style="background-color: #f5f7fb; min-height: 100vh;">
+    <div class="container">
+        <div class="row">
+            <aside class="col-md-3 animate-up delay-1">
+                {% include 'includes/admin_sidebar.html' %}
+            </aside>
+
+            <main class="col-md-9 animate-up delay-2">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="font-weight-bold" style="color: var(--text-dark);">Products Management</h4>
+
+                    <div>
+                        <a href="{% url 'staff_category_list' %}" class="btn-category-management">
+                            Category Management
+                        </a>
+                        <a href="{% url 'staff_product_create' %}" class="btn-add-product">
+                            <i class="fas fa-plus"></i> Add Product
+                        </a>
+                    </div>
+                </div>
+
+                <form method="GET" class="mb-4">
+                    <select name="category" onchange="this.form.submit()" class="form-control" style="width: 200px; border-radius: 10px;">
+                        <option value="all">Filter by Category</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if cat.id|stringformat:"i" == category_filter %}selected{% endif %}>
+                                {{ cat.category_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+
+                <article class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-items-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="pl-4">#</th> <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Stock</th>
+                                        <th>Category</th>
+                                        <th>Status</th>
+                                        <th>Variants</th>
+                                        <th class="text-right pr-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in products %}
+                                    <tr>
+                                        <td class="pl-4">{{ forloop.counter }}</td>
+
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="icon-shape bg-light text-primary shadow-sm mr-3" style="width: 50px; height: 50px; overflow: hidden; border: 1px solid #f0f2f5;">
+                                                    <img src="{{ p.images.url }}" alt="{{ p.product_name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                </div>
+                                                <div class="d-flex flex-column">
+                                                    <a href="{% url 'product_detail' p.category.slug p.slug %}" class="text-dark font-weight-bold text-sm">{{ p.product_name }}</a>
+                                                    <small class="text-xs text-muted">No: #{{ forloop.counter }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td>${{ p.price }}</td>
+
+                                        <td>{{ p.total_stock|default:"0" }}</td>
+
+                                        <td><span class="badge badge-soft-info">{{ p.category.category_name }}</span></td>
+
+                                        <td>
+                                            {% if p.is_available %}
+                                                <span class="badge badge-success" style="background-color: #82d616; color: white; border-radius: 8px; font-weight: 600;">Available</span>
+                                            {% else %}
+                                                <span class="badge badge-danger" style="background-color: #f53939; color: white; border-radius: 8px; font-weight: 600;">Not Available</span>
+                                            {% endif %}
+                                        </td>
+
+                                        <td>
+                                            <a href="{% url 'staff_variant_by_product' p.id %}" class="badge badge-soft-info">
+                                                Manage
+                                            </a>
+                                        </td>
+
+                                        <td class="text-right pr-4">
+                                            <a href="{% url 'staff_product_update' p.pk %}" class="action-btn text-primary mr-1" title="Edit">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <a href="{% url 'staff_product_delete' p.pk %}"
+                                               onclick="return confirm('Bạn có chắc chắn muốn xoá sản phẩm: {{ p.product_name }}?');"
+                                               class="action-btn text-danger" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center py-5">
+                                            <i class="fas fa-box-open text-muted mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                                            <h6 class="text-muted">No products found.</h6>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </article>
+
+            </main>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

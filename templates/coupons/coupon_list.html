@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    /* --- GLOBAL SETTINGS --- */
+    :root { --primary: #2152ff; --text-dark: #344767; --text-gray: #8392ab; --bg-body: #f5f7fb; }
+    body { font-family: 'Poppins', sans-serif; color: var(--text-dark); background-color: var(--bg-body); }
+
+    /* --- ANIMATIONS --- */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; }
+
+    /* --- CARD STYLING --- */
+    .card {
+        border: none; border-radius: 20px; background: #fff;
+        box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
+        transition: all 0.3s ease; overflow: visible; position: relative;
+    }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 1rem 3rem rgba(33, 82, 255, 0.15); z-index: 10; }
+
+    /* --- KPI CARDS --- */
+    .kpi-card { overflow: hidden; color: white; }
+    .icon-shape {
+        width: 48px; height: 48px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.25rem; background: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
+    }
+
+    /* --- TABLE STYLING --- */
+    .table thead th {
+        background-color: #f8f9fa; color: var(--text-gray);
+        font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        border-bottom: none; padding: 1rem 1.5rem;
+    }
+    .table tbody td {
+        vertical-align: middle; padding: 1rem 1.5rem;
+        border-top: 1px solid #f1f4f8; font-size: 0.9rem; color: var(--text-dark); font-weight: 500;
+    }
+    .table-hover tbody tr:hover { background-color: #f8faff; }
+
+    /* --- BADGES & BUTTONS --- */
+    .badge-pill-custom { padding: 0.5em 0.9em; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.3px; border-radius: 8px; }
+
+    /* Soft colors for badges */
+    .badge-warning { background-color: #fff3cd; color: #ffb020; } /* For Discount */
+
+    /* Mapping status colors from logic */
+    .badge-success { background-color: #d4edda; color: #28a745; }
+    .badge-danger  { background-color: #f8d7da; color: #dc3545; }
+    .badge-secondary { background-color: #e2e3e5; color: #383d41; }
+    .badge-info { background-color: #cff4fc; color: #055160; }
+
+    .btn-primary-soft {
+        background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%);
+        border: none; border-radius: 10px; color: white; font-weight: 600;
+        padding: 10px 20px; box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+        transition: all 0.3s;
+    }
+    .btn-primary-soft:hover { transform: translateY(-2px); box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08); color: white; }
+</style>
+
+<section class="section-content padding-y" style="background-color: #f5f7fb;">
+   <div class="container">
+       <div class="row">
+
+           <aside class="col-md-3 animate-up delay-1">
+               {% include 'includes/admin_sidebar.html' %}
+           </aside>
+
+           <main class="col-md-9">
+
+               <div class="d-flex justify-content-between align-items-center mb-4 animate-up delay-1">
+                   <div>
+                       <h4 class="font-weight-bold text-dark mb-0">Coupon Management</h4>
+                       <p class="text-muted small mb-0">Create and manage discount codes</p>
+                   </div>
+                   <a href="{% url 'coupons:coupon_create' %}" class="btn btn-primary-soft">
+                       <i class="fa fa-plus mr-2"></i> Add New Coupon
+                   </a>
+               </div>
+
+               <div class="row mb-4 animate-up delay-1">
+                   <div class="col-md-3 mb-3">
+                       <div class="card kpi-card h-100 border-0" style="background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%);">
+                           <div class="card-body d-flex justify-content-between align-items-center">
+                               <div>
+                                   <p class="text-uppercase font-weight-bold small opacity-7 mb-1">Total Coupons</p>
+                                   <h3 class="font-weight-bolder text-white mb-0">{{ total_coupons }}</h3>
+                               </div>
+                               <div class="icon-shape shadow-sm">
+                                   <i class="fas fa-ticket-alt text-white"></i>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+
+                   <div class="col-md-3 mb-3">
+                       <div class="card kpi-card h-100 border-0" style="background: linear-gradient(310deg, #17ad37 0%, #98ec2d 100%);">
+                           <div class="card-body d-flex justify-content-between align-items-center">
+                               <div>
+                                   <p class="text-uppercase font-weight-bold small opacity-7 mb-1">Active</p>
+                                   <h3 class="font-weight-bolder text-white mb-0">{{ active_coupons }}</h3>
+                               </div>
+                               <div class="icon-shape shadow-sm">
+                                   <i class="fas fa-check-circle text-white"></i>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+
+                   <div class="col-md-3 mb-3">
+                       <div class="card kpi-card h-100 border-0" style="background: linear-gradient(310deg, #f53939 0%, #fbcf33 100%);">
+                           <div class="card-body d-flex justify-content-between align-items-center">
+                               <div>
+                                   <p class="text-uppercase font-weight-bold small opacity-7 mb-1">Upcoming</p>
+                                   <h3 class="font-weight-bolder text-white mb-0">{{ upcoming_coupons }}</h3>
+                               </div>
+                               <div class="icon-shape shadow-sm">
+                                   <i class="fas fa-hourglass-half text-white"></i>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+
+                   <div class="col-md-3 mb-3">
+                       <div class="card kpi-card h-100 border-0" style="background: linear-gradient(310deg, #ea0606 0%, #ff667c 100%);">
+                           <div class="card-body d-flex justify-content-between align-items-center">
+                               <div>
+                                   <p class="text-uppercase font-weight-bold small opacity-7 mb-1">Expired</p>
+                                   <h3 class="font-weight-bolder text-white mb-0">{{ expired_coupons }}</h3>
+                               </div>
+                               <div class="icon-shape shadow-sm">
+                                   <i class="fas fa-times-circle text-white"></i>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+
+
+               <article class="card mb-4 animate-up delay-2">
+                   <header class="card-header bg-white border-bottom-0 pt-4 pl-4 pr-4 pb-0">
+                       <strong class="text-uppercase text-muted small"><i class="fa fa-list mr-1"></i> Coupon List</strong>
+                   </header>
+
+                   <div class="card-body p-0 mt-2">
+                       <div class="table-responsive">
+                           <table class="table table-hover align-items-center mb-0">
+                               <thead class="bg-light">
+                                   <tr>
+                                       <th class="pl-4">Code</th>
+                                       <th>Discount</th>
+                                       <th>Scope</th>
+                                       <th>Validity</th>
+                                       <th>Status</th>
+                                       <th>Usage</th>
+                                       <th class="text-center pr-4">Actions</th>
+                                   </tr>
+                               </thead>
+                               <tbody>
+                                   {% for coupon in coupons %}
+                                   <tr>
+                                       <td class="pl-4">
+                                           <div class="d-flex align-items-center">
+                                               <div class="icon-shape bg-light text-primary mr-3 shadow-sm" style="width:35px; height:35px; border-radius:8px;">
+                                                   <i class="fas fa-tag" style="font-size: 14px;"></i>
+                                               </div>
+                                               <strong class="text-dark">{{ coupon.code }}</strong>
+                                           </div>
+                                       </td>
+                                       <td>
+                                           <span class="badge badge-pill-custom badge-warning text-dark">{{ coupon.discount }}%</span>
+                                       </td>
+                                       <td>
+                                           <span class="text-sm font-weight-bold">{{ coupon.get_applies_to_display }}</span>
+                                           {% if coupon.applies_to == 'CATEGORY' %}
+                                               <br><small class="text-muted">({{ coupon.categories.count }} categories)</small>
+                                           {% endif %}
+                                       </td>
+                                       <td>
+                                           <div class="d-flex flex-column">
+                                               <small class="text-muted">From: <span class="text-dark font-weight-bold">{{ coupon.valid_from|date:"d/m/Y" }}</span></small>
+                                               <small class="text-muted">To: <span class="text-dark font-weight-bold">{{ coupon.valid_to|date:"d/m/Y" }}</span></small>
+                                           </div>
+                                       </td>
+                                      <td>
+                                          {% with status_label=coupon.get_status_label %}
+                                          <span class="badge badge-pill-custom badge-{{ status_label.1 }}">
+                                              {{ status_label.0 }}
+                                          </span>
+                                          {% endwith %}
+                                      </td>
+                                       <td>
+                                           <div class="d-flex align-items-center">
+                                               <span class="font-weight-bold text-dark mr-2">{{ coupon.used_total }}</span>
+                                               {% if coupon.max_usage_count > 0 %}
+                                               <span class="text-muted small">/ {{ coupon.max_usage_count }}</span>
+                                               {% else %}
+                                               <span class="text-muted small">/ ∞</span>
+                                               {% endif %}
+                                           </div>
+                                           {% if coupon.max_usage_count > 0 %}
+                                            <div class="progress w-100 mt-1" style="height: 3px; width: 50px !important;">
+                                                <div class="progress-bar bg-primary" role="progressbar" style="width: 50%"></div>
+                                            </div>
+                                           {% endif %}
+                                       </td>
+                                       <td class="text-center pr-4">
+                                           <div class="btn-group">
+                                               <a href="{% url 'coupons:coupon_detail' pk=coupon.pk %}"
+                                                  class="btn btn-sm btn-light text-info shadow-sm mx-1"
+                                                  style="border-radius: 8px;"
+                                                  title="Edit">
+                                                   <i class="fa fa-edit"></i>
+                                               </a>
+
+                                               <form method="POST" action="{% url 'coupons:coupon_delete' pk=coupon.pk %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete coupon {{ coupon.code }}?');">
+                                                   {% csrf_token %}
+                                                   <button type="submit" class="btn btn-sm btn-light text-danger shadow-sm mx-1" style="border-radius: 8px;" title="Delete">
+                                                       <i class="fa fa-trash"></i>
+                                                   </button>
+                                               </form>
+                                           </div>
+                                       </td>
+                                   </tr>
+                                   {% empty %}
+                                   <tr>
+                                       <td colspan="7" class="text-center py-5">
+                                           <div class="text-muted">
+                                                <i class="fas fa-ticket-alt fa-3x mb-3 opacity-5"></i>
+                                                <p>No coupons found.</p>
+                                           </div>
+                                       </td>
+                                   </tr>
+                                   {% endfor %}
+                               </tbody>
+                           </table>
+                       </div>
+                   </div>
+               </article>
+
+           </main>
+       </div>
+   </div>
+</section>
+{% endblock %}

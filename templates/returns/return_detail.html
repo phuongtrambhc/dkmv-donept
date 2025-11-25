@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+<section class="section-content padding-y bg">
+   <div class="container" style="max-width: 900px;">
+
+
+       <!-- Back Button -->
+       <a href="{% url 'returns:my_returns' %}" class="btn btn-outline-secondary btn-sm mb-3">
+           <i class="fa fa-arrow-left"></i> Back to My Returns
+       </a>
+
+
+       <div class="card">
+           <div class="card-header bg-warning text-white">
+               <div class="d-flex justify-content-between align-items-center">
+                   <h4 class="mb-0">Return Request #{{ return_request.return_number }}</h4>
+                   <span class="badge badge-{% if return_request.status == 'Pending' %}warning{% elif return_request.status == 'Approved' %}success{% elif return_request.status == 'Rejected' %}danger{% else %}info{% endif %}" style="font-size: 16px; padding: 8px 15px;">
+                       {{ return_request.status }}
+                   </span>
+               </div>
+           </div>
+           <div class="card-body">
+
+
+               <!-- Status Timeline -->
+               <h6 class="mb-3">Status Timeline</h6>
+               <div class="progress mb-3" style="height: 30px;">
+                   <div class="progress-bar bg-{% if return_request.status == 'Pending' %}warning{% elif return_request.status == 'Approved' %}success{% elif return_request.status == 'Rejected' %}danger{% else %}info{% endif %}"
+                        role="progressbar"
+                        style="width: {% if return_request.status == 'Pending' %}25%{% elif return_request.status == 'Approved' %}75%{% elif return_request.status == 'Completed' %}100%{% else %}50%{% endif %}">
+                       {{ return_request.status }}
+                   </div>
+               </div>
+               <small class="text-muted">
+                   {% if return_request.status == 'Pending' %}
+                       Waiting for admin review
+                   {% elif return_request.status == 'Approved' %}
+                       Your return has been approved. Refund will be processed soon.
+                   {% elif return_request.status == 'Rejected' %}
+                       Your return request has been rejected.
+                   {% elif return_request.status == 'Completed' %}
+                       Your return has been completed and refund processed.
+                   {% endif %}
+               </small>
+
+
+               <hr class="my-4">
+
+
+               <!-- Request & Refund Information -->
+               <div class="row mb-4">
+                   <div class="col-md-6">
+                       <h6 class="text-muted mb-3">Request Information</h6>
+                       <table class="table table-sm table-borderless">
+                           <tr>
+                               <td class="text-muted" style="width: 130px;">Order #:</td>
+                               <td><a href="{% url 'order_detail' return_request.order.order_number %}">{{ return_request.order.order_number }}</a></td>
+                           </tr>
+                           <tr>
+                               <td class="text-muted">Return Type:</td>
+                               <td><strong>{{ return_request.return_type }}</strong></td>
+                           </tr>
+                           <tr>
+                               <td class="text-muted">Reason:</td>
+                               <td>{{ return_request.reason|default:"N/A" }}</td>
+                           </tr>
+                           <tr>
+                               <td class="text-muted">Submitted:</td>
+                               <td>{{ return_request.created_at|date:"M d, Y, g:i a" }}</td>
+                           </tr>
+                       </table>
+                   </div>
+                   <div class="col-md-6">
+                       <h6 class="text-muted mb-3">Refund Information</h6>
+                       <table class="table table-sm table-borderless">
+                           <tr>
+                               <td class="text-muted" style="width: 150px;">Refund Amount:</td>
+                               <td><h5 class="text-success mb-0">${{ return_request.refund_amount|floatformat:2 }}</h5></td>
+                           </tr>
+                       </table>
+                   </div>
+               </div>
+
+
+               <!-- Description -->
+               <h6 class="mb-3">Description</h6>
+               <div class="alert alert-light">
+                   {{ return_request.description|default:"No description provided" }}
+               </div>
+
+
+               <!-- Return Items -->
+               <h6 class="mb-3">Return Items</h6>
+               <div class="table-responsive mb-4">
+                   <table class="table table-bordered">
+                       <thead class="bg-light">
+                           <tr>
+                               <th>Product</th>
+                               <th class="text-center" style="width: 100px;">Quantity</th>
+                               <th class="text-right" style="width: 120px;">Price</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           {% for item in return_request.items.all %}
+                           <tr>
+                               <td>
+                                   <div class="d-flex align-items-center">
+                                       <img src="{{ item.order_product.product.images.url }}"
+                                            alt="{{ item.order_product.product.product_name }}"
+                                            style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border-radius: 4px;">
+                                       <div>
+                                           <strong>{{ item.order_product.product.product_name }}</strong>
+                                       </div>
+                                   </div>
+                               </td>
+                               <td class="text-center" style="vertical-align: middle;">{{ item.quantity }}</td>
+                               <td class="text-right" style="vertical-align: middle;">${{ item.order_product.product_price|floatformat:2 }}</td>
+                           </tr>
+                           {% endfor %}
+                       </tbody>
+                   </table>
+               </div>
+
+
+               <!-- Images -->
+               {% if return_request.images.all %}
+               <h6 class="mb-3">Uploaded Images</h6>
+               <div class="row mb-4">
+                   {% for image in return_request.images.all %}
+                   <div class="col-md-3 mb-3">
+                       <a href="{{ image.image.url }}" target="_blank">
+                           <img src="{{ image.image.url }}" class="img-fluid" style="border-radius: 8px; border: 1px solid #dee2e6;">
+                       </a>
+                   </div>
+                   {% endfor %}
+               </div>
+               {% endif %}
+
+
+               <!-- Admin Note -->
+               {% if return_request.admin_note %}
+               <div class="alert alert-secondary mt-4">
+                   <h6 class="mb-2"><i class="fa fa-comment"></i> Admin Note:</h6>
+                   {{ return_request.admin_note }}
+               </div>
+               {% endif %}
+
+
+           </div>
+       </div>
+   </div>
+</section>
+{% endblock %}

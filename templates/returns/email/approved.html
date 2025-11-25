@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="UTF-8">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+   <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+       <h2 style="color: #28a745;">Return Request Approved ✓</h2>
+       <p>Hello {{ user.first_name }},</p>
+       <p>Good news! Your return request has been approved.</p>
+
+
+       <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+           <tr>
+               <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Return #:</strong></td>
+               <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ return_request.return_number }}</td>
+           </tr>
+           <tr>
+               <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Refund Amount:</strong></td>
+               <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong style="color: #28a745;">${{ return_request.refund_amount }}</strong></td>
+           </tr>
+           <tr>
+               <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Status:</strong></td>
+               <td style="padding: 10px; border-bottom: 1px solid #ddd;"><span style="color: #28a745;">Approved</span></td>
+           </tr>
+       </table>
+
+
+       {% if return_request.admin_note %}
+       <p><strong>Note from Admin:</strong></p>
+       <p style="background: #e7f3ff; padding: 15px; border-left: 4px solid #007bff; border-radius: 5px;">
+           {{ return_request.admin_note }}
+       </p>
+       {% endif %}
+
+
+       <p style="margin-top: 20px;">
+           Your refund will be processed within 3-5 business days.
+       </p>
+
+
+       <p>Thank you for your patience!</p>
+   </div>
+</body>
+</html>
+

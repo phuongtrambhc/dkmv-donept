@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    /* --- GLOBAL SETTINGS --- */
+    :root { --primary: #2152ff; --text-dark: #344767; --text-gray: #8392ab; --bg-body: #f5f7fb; }
+    body { font-family: 'Poppins', sans-serif; color: var(--text-dark); background-color: var(--bg-body); }
+
+    /* --- ANIMATIONS --- */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; }
+
+    /* --- CARD STYLING --- */
+    .card { 
+        border: none; border-radius: 20px; background: #fff; 
+        box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03); 
+        transition: all 0.3s ease; overflow: visible; position: relative; 
+    }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 1rem 3rem rgba(33, 82, 255, 0.15); z-index: 10; }
+
+    /* --- KPI CARDS --- */
+    .kpi-card { overflow: hidden; color: white; }
+    .icon-shape { 
+        width: 48px; height: 48px; border-radius: 12px; 
+        display: flex; align-items: center; justify-content: center; 
+        font-size: 1.25rem; background: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
+    }
+
+    /* --- TABLE STYLING --- */
+    .table thead th { 
+        background-color: #f8f9fa; color: var(--text-gray); 
+        font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; 
+        border-bottom: none; padding: 1rem 1.5rem; 
+    }
+    .table tbody td { 
+        vertical-align: middle; padding: 1rem 1.5rem; 
+        border-top: 1px solid #f1f4f8; font-size: 0.9rem; color: var(--text-dark); font-weight: 500; 
+    }
+    .table-hover tbody tr:hover { background-color: #f8faff; }
+
+    /* --- FORM ELEMENTS --- */
+    .form-control-search {
+        border-radius: 10px; border: 1px solid #e9ecef; padding: 10px 15px; height: 45px;
+    }
+    .form-control-search:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(33, 82, 255, 0.1); }
+    
+    .btn-primary-soft {
+        background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%);
+        border: none; border-radius: 10px; color: white; font-weight: 600;
+        height: 45px; width: 100%;
+    }
+    
+    /* Pagination */
+    .page-link { border: none; color: var(--text-gray); border-radius: 8px; margin: 0 3px; font-weight: 600; }
+    .page-item.active .page-link { background-color: var(--primary); color: white; box-shadow: 0 4px 10px rgba(33, 82, 255, 0.3); }
+</style>
+
+<section class="section-content padding-y" style="background-color: #f5f7fb;">
+    <div class="container">
+        <div class="row">
+            <aside class="col-md-3 animate-up delay-1">
+                {% include 'includes/admin_sidebar.html' %}
+            </aside>
+
+            <main class="col-md-9">
+                
+                <div class="d-flex justify-content-between align-items-center mb-4 animate-up delay-1">
+                    <div>
+                        <h4 class="font-weight-bold text-dark mb-0">Customer Management</h4>
+                        <p class="text-muted small mb-0">Overview of registered members</p>
+                    </div>
+                </div>
+
+                <div class="row mb-4 animate-up delay-1">
+                    <div class="col-md-4 mb-3">
+                        <div class="card kpi-card h-100 border-0" style="background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%);">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-uppercase font-weight-bold small opacity-7 mb-1">Total Customers</p>
+                                    <h3 class="font-weight-bolder text-white mb-0">{{ total_customers }}</h3>
+                                </div>
+                                <div class="icon-shape shadow-sm">
+                                    <i class="fas fa-users text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="card kpi-card h-100 border-0" style="background: linear-gradient(310deg, #17ad37 0%, #98ec2d 100%);">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-uppercase font-weight-bold small opacity-7 mb-1">Active Users</p>
+                                    <h3 class="font-weight-bolder text-white mb-0">{{ active_customers }}</h3>
+                                </div>
+                                <div class="icon-shape shadow-sm">
+                                    <i class="fas fa-user-check text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="card kpi-card h-100 border-0" style="background: linear-gradient(310deg, #f53939 0%, #fbcf33 100%);">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-uppercase font-weight-bold small opacity-7 mb-1">Inactive / Blocked</p>
+                                    <h3 class="font-weight-bolder text-white mb-0">{{ inactive_customers }}</h3>
+                                </div>
+                                <div class="icon-shape shadow-sm">
+                                    <i class="fas fa-user-times text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <article class="card mb-4 animate-up delay-2">
+                    <header class="card-header bg-white border-bottom-0 pt-4 pl-4 pr-4 pb-0">
+                        <form method="GET" class="mb-3">
+                            <div class="row">
+                                <div class="col-md-7 mb-2">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-white border-right-0" style="border-radius: 10px 0 0 10px; border: 1px solid #e9ecef;">
+                                                <i class="fas fa-search text-muted"></i>
+                                            </span>
+                                        </div>
+                                        <input type="text" name="search" class="form-control form-control-search border-left-0"
+                                               placeholder="Search by email, name, phone..."
+                                               value="{{ search_query }}"
+                                               style="border-radius: 0 10px 10px 0;">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <select name="status" class="form-control form-control-search" onchange="this.form.submit()">
+                                        <option value="">-- All Status --</option>
+                                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                                        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <button type="submit" class="btn-primary-soft shadow-sm">
+                                        Filter
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </header>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-items-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="pl-4">Customer</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Status</th>
+                                        <th>Joined Date</th>
+                                        <th class="text-right pr-4">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for customer in page_obj %}
+                                    <tr>
+                                        <td class="pl-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar rounded-circle bg-light text-primary mr-3 d-flex align-items-center justify-content-center font-weight-bold" style="width:40px; height:40px;">
+                                                    {{ customer.first_name|slice:":1" }}
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 text-sm font-weight-bold text-dark">{{ customer.first_name }} {{ customer.last_name }}</h6>
+                                                    <p class="text-xs text-muted mb-0">ID: #{{ customer.id }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="text-secondary text-sm">{{ customer.email }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-secondary text-sm font-weight-bold">{{ customer.phone_number|default:"--" }}</span>
+                                        </td>
+                                        <td>
+                                            {% if customer.is_active %}
+                                                <span class="badge badge-sm bg-gradient-success text-white" style="background: #28a745; padding: 5px 10px; border-radius: 8px;">Active</span>
+                                            {% else %}
+                                                <span class="badge badge-sm bg-gradient-danger text-white" style="background: #f53939; padding: 5px 10px; border-radius: 8px;">Locked</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="text-secondary text-sm">{{ customer.date_joined|date:"d/m/Y" }}</span>
+                                        </td>
+                                        <td class="text-right pr-4">
+                                            <a href="{% url 'customer_detail' customer.id %}" class="btn btn-sm btn-light text-primary font-weight-bold shadow-sm" style="border-radius: 8px;">
+                                                Details <i class="fas fa-arrow-right ml-1"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <div class="text-muted">
+                                                <i class="fas fa-search fa-3x mb-3 opacity-5"></i>
+                                                <p>No customers found matching your query.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if page_obj.has_other_pages %}
+                    <div class="card-footer bg-white border-0 pt-3 pb-4">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center mb-0">
+                                {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"><i class="fas fa-angle-double-left"></i></a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"><i class="fas fa-angle-left"></i></a>
+                                </li>
+                                {% endif %}
+
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_obj.number }}</span>
+                                </li>
+
+                                {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"><i class="fas fa-angle-right"></i></a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"><i class="fas fa-angle-double-right"></i></a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+                </article>
+
+            </main>
+        </div>
+    </div>
+</section>
+{% endblock %}

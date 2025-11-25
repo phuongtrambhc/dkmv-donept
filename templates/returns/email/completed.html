@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="UTF-8">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+   <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+       <h2 style="color: #28a745;">Return Completed ✓</h2>
+       <p>Hello {{ user.first_name }},</p>
+       <p>Your return has been processed successfully!</p>
+
+
+       <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+           <tr>
+               <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Return #:</strong></td>
+               <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ return_request.return_number }}</td>
+           </tr>
+           <tr>
+               <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Refund Amount:</strong></td>
+               <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong style="color: #28a745;">${{ return_request.refund_amount }}</strong></td>
+           </tr>
+           <tr>
+               <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Status:</strong></td>
+               <td style="padding: 10px; border-bottom: 1px solid #ddd;"><span style="color: #28a745;">Completed</span></td>
+           </tr>
+       </table>
+
+
+       <p style="margin-top: 20px;">
+           The refund has been processed to your original payment method.
+       </p>
+
+
+       <p>Thank you for shopping with us!</p>
+   </div>
+</body>
+</html>

@@ -1,0 +1,605 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}{{ title }}{% endblock %}
+{% block header_title %}<i class="fa fa-ticket"></i> {{ title }}{% endblock %}
+
+
+{% block content %}
+<style>
+   .section-content {
+       background: #f8f9fa;
+       min-height: calc(100vh - 150px);
+   }
+
+
+   .sidebar-nav {
+       background: white;
+       border-radius: 8px;
+       box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+       overflow: hidden;
+   }
+
+
+   .sidebar-nav .list-group-item {
+       border: none;
+       border-left: 3px solid transparent;
+       padding: 14px 20px;
+       transition: all 0.3s ease;
+       color: #495057;
+   }
+
+
+   .sidebar-nav .list-group-item:hover {
+       background: #f8f9fa;
+       border-left-color: #007bff;
+       color: #007bff;
+   }
+
+
+   .sidebar-nav .list-group-item.active {
+       background: linear-gradient(90deg, #e7f3ff 0%, #f8f9fa 100%);
+       border-left-color: #007bff;
+       color: #007bff;
+       font-weight: 600;
+   }
+
+
+   .sidebar-nav .list-group-item i {
+       width: 24px;
+       margin-right: 10px;
+   }
+
+
+   .main-card {
+       background: white;
+       border-radius: 8px;
+       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+       border: none;
+   }
+
+
+   .main-card .card-header {
+       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+       color: white;
+       border: none;
+       border-radius: 8px 8px 0 0;
+       padding: 20px 24px;
+   }
+
+
+   .main-card .card-header strong {
+       font-size: 1.25rem;
+       font-weight: 600;
+   }
+
+
+   .main-card .card-body {
+       padding: 32px;
+   }
+
+
+   .section-heading {
+       color: #667eea;
+       font-size: 1.1rem;
+       font-weight: 600;
+       margin-bottom: 20px;
+       padding-bottom: 12px;
+       border-bottom: 2px solid #e9ecef;
+       display: flex;
+       align-items: center;
+   }
+
+
+   .section-heading::before {
+       content: '';
+       width: 4px;
+       height: 24px;
+       background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+       margin-right: 12px;
+       border-radius: 2px;
+   }
+
+
+   .form-label {
+       font-weight: 500;
+       color: #495057;
+       margin-bottom: 8px;
+       font-size: 0.95rem;
+   }
+
+
+   .form-control {
+       border: 1.5px solid #e0e0e0;
+       border-radius: 6px;
+       padding: 10px 14px;
+       transition: all 0.3s ease;
+       font-size: 0.95rem;
+   }
+
+
+   .form-control:focus {
+       border-color: #667eea;
+       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+   }
+
+
+   .input-group-text {
+       background: #f8f9fa;
+       border: 1.5px solid #e0e0e0;
+       border-left: none;
+       color: #6c757d;
+       font-weight: 500;
+       font-size: 0.9rem;
+   }
+
+
+   .input-group .form-control {
+       border-right: none;
+   }
+
+
+   .input-group:focus-within .form-control,
+   .input-group:focus-within .input-group-text {
+       border-color: #667eea;
+   }
+
+
+   .input-group:focus-within .input-group-text {
+       border-left: 1.5px solid #667eea;
+   }
+
+
+   .form-check {
+       padding: 12px 16px;
+       background: #f8f9fa;
+       border-radius: 6px;
+       border: 1.5px solid #e9ecef;
+       transition: all 0.3s ease;
+       margin-bottom: 10px;
+   }
+
+
+   .form-check:hover {
+       border-color: #667eea;
+       background: #f0f4ff;
+   }
+
+
+   .categories-checkbox-list {
+       max-height: 300px;
+       overflow-y: auto;
+       border: 1.5px solid #e0e0e0;
+       border-radius: 6px;
+       padding: 12px;
+       background: white;
+   }
+
+
+   .categories-checkbox-list .form-check {
+       margin-bottom: 8px;
+       padding: 10px 14px;
+   }
+
+
+   .categories-checkbox-list .form-check:last-child {
+       margin-bottom: 0;
+   }
+
+
+   .form-check-input:checked {
+       background-color: #667eea;
+       border-color: #667eea;
+   }
+
+
+   .form-check-label {
+       font-weight: 500;
+       color: #495057;
+       margin-left: 8px;
+   }
+
+
+   .text-danger {
+       color: #dc3545 !important;
+   }
+
+
+   .text-muted {
+       color: #6c757d !important;
+       font-size: 0.875rem;
+   }
+
+
+   .btn {
+       padding: 10px 24px;
+       border-radius: 6px;
+       font-weight: 500;
+       transition: all 0.3s ease;
+       font-size: 0.95rem;
+   }
+
+
+   .btn-primary {
+       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+       border: none;
+       color: white;
+   }
+
+
+   .btn-primary:hover {
+       transform: translateY(-2px);
+       box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+   }
+
+
+   .btn-outline-secondary {
+       border: 1.5px solid #6c757d;
+       color: #6c757d;
+       background: white;
+   }
+
+
+   .btn-outline-secondary:hover {
+       background: #6c757d;
+       color: white;
+       border-color: #6c757d;
+   }
+
+
+   .btn-light {
+       background: rgba(255,255,255,0.2);
+       border: 1.5px solid rgba(255,255,255,0.4);
+       color: white;
+   }
+
+
+   .btn-light:hover {
+       background: rgba(255,255,255,0.3);
+       border-color: rgba(255,255,255,0.6);
+       color: white;
+   }
+
+
+   .alert {
+       border-radius: 6px;
+       border: none;
+       padding: 16px 20px;
+   }
+
+
+   .alert-danger {
+       background: #fff5f5;
+       color: #c53030;
+       border-left: 4px solid #dc3545;
+   }
+
+
+   select[multiple] {
+       min-height: 150px !important;
+   }
+
+
+   textarea.form-control {
+       resize: vertical;
+       min-height: 100px;
+   }
+
+
+   .divider {
+       border: none;
+       height: 1px;
+       background: linear-gradient(90deg, transparent 0%, #e9ecef 50%, transparent 100%);
+       margin: 32px 0;
+   }
+
+
+   .action-buttons {
+       display: flex;
+       justify-content: flex-end;
+       gap: 12px;
+       margin-top: 32px;
+       padding-top: 24px;
+       border-top: 2px solid #e9ecef;
+   }
+
+
+   @media (max-width: 768px) {
+       .main-card .card-body {
+           padding: 20px;
+       }
+
+
+       .action-buttons {
+           flex-direction: column;
+       }
+
+
+       .action-buttons .btn {
+           width: 100%;
+       }
+   }
+</style>
+
+
+<section class="section-content padding-y">
+   <div class="container">
+       <div class="row">
+
+
+           <aside class="col-md-3 mb-4">
+               {% include 'includes/admin_sidebar.html' %}
+
+           </aside>
+
+
+           <main class="col-md-9">
+               <article class="card main-card">
+                   <header class="card-header">
+                       <div class="d-flex justify-content-between align-items-center">
+                           <strong><i class="fa fa-ticket mr-2"></i> {{ title }}</strong>
+                           <a href="{% url 'coupons:coupon_list' %}" class="btn btn-light btn-sm">
+                               <i class="fa fa-arrow-left mr-1"></i> Quay lại
+                           </a>
+                       </div>
+                   </header>
+                   <div class="card-body">
+                       <form method="post">
+                           {% csrf_token %}
+
+
+                           {% if form.non_field_errors %}
+                               <div class="alert alert-danger" role="alert">
+                                   {% for error in form.non_field_errors %}
+                                       <i class="fa fa-exclamation-circle mr-2"></i>{{ error }}
+                                   {% endfor %}
+                               </div>
+                           {% endif %}
+
+
+                           <h5 class="section-heading">Thông tin cơ bản</h5>
+                           <div class="form-row">
+                               <div class="form-group col-md-4">
+                                   <label class="form-label" for="{{ form.code.id_for_label }}">
+                                       {{ form.code.label }} <span class="text-danger">*</span>
+                                   </label>
+                                   <input type="text" name="{{ form.code.name }}" id="{{ form.code.id_for_label }}"
+                                          class="form-control" value="{{ form.code.value|default_if_none:'' }}"
+                                          placeholder="Ví dụ: GIAM20K" {% if form.code.field.required %}required{% endif %}>
+                                   {% if form.code.help_text %}<small class="form-text text-muted">{{ form.code.help_text }}</small>{% endif %}
+                                   {% for error in form.code.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                               </div>
+                               <div class="form-group col-md-4">
+                                   <label class="form-label" for="{{ form.discount.id_for_label }}">
+                                       Giá trị giảm giá <span class="text-danger">*</span>
+                                   </label>
+                                   <div class="input-group">
+                                       <input type="number" name="{{ form.discount.name }}" id="{{ form.discount.id_for_label }}"
+                                              class="form-control" value="{{ form.discount.value|default_if_none:'' }}"
+                                              placeholder="10" {% if form.discount.field.required %}required{% endif %} step="any">
+                                       <div class="input-group-append">
+                                           <span class="input-group-text"><i class="fa fa-percent"></i></span>
+                                       </div>
+                                   </div>
+                                   {% for error in form.discount.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                               </div>
+                               <div class="form-group col-md-4">
+                                   <label class="form-label" for="{{ form.max_discount_amount.id_for_label }}">
+                                       {{ form.max_discount_amount.label }}
+                                   </label>
+                                   <div class="input-group">
+                                       <input type="number" name="{{ form.max_discount_amount.name }}" id="{{ form.max_discount_amount.id_for_label }}"
+                                              class="form-control" value="{{ form.max_discount_amount.value|default_if_none:'' }}"
+                                              placeholder="Không giới hạn" step="any">
+                                       <div class="input-group-append">
+                                           <span class="input-group-text">₫</span>
+                                       </div>
+                                   </div>
+                                   {% if form.max_discount_amount.help_text %}<small class="form-text text-muted">{{ form.max_discount_amount.help_text }}</small>{% endif %}
+                                   {% for error in form.max_discount_amount.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                               </div>
+                           </div>
+
+
+                           <hr class="divider">
+
+
+                           <h5 class="section-heading">Thời gian & Trạng thái</h5>
+                           <div class="form-row">
+                               <div class="form-group col-md-6">
+                                   <label class="form-label">Thời gian áp dụng <span class="text-danger">*</span></label>
+                                   <div class="form-row">
+                                       <div class="col-6">
+                                           <label for="{{ form.valid_from.id_for_label }}" class="small text-muted">Từ ngày</label>
+                                           {{ form.valid_from }}
+                                           {% for error in form.valid_from.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                                       </div>
+                                       <div class="col-6">
+                                           <label for="{{ form.valid_to.id_for_label }}" class="small text-muted">Đến ngày</label>
+                                           {{ form.valid_to }}
+                                           {% for error in form.valid_to.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                                       </div>
+                                   </div>
+                               </div>
+                               <div class="form-group col-md-6">
+                                   <label class="form-label d-block">Trạng thái hoạt động</label>
+                                   <div class="form-check">
+                                       {{ form.active }}
+                                       <label class="form-check-label" for="{{ form.active.id_for_label }}">
+                                           <i class="fa fa-check-circle mr-1 text-success"></i> Đang hoạt động
+                                       </label>
+                                   </div>
+                                   <div class="form-check">
+                                       <input type="radio" id="not_active" name="active_status" value="false" class="form-check-input" {% if not form.instance.active %}checked{% endif %}>
+                                       <label class="form-check-label" for="not_active">
+                                           <i class="fa fa-pause-circle mr-1 text-warning"></i> Tạm dừng
+                                       </label>
+                                   </div>
+                               </div>
+                           </div>
+
+
+                           <hr class="divider">
+
+
+                           <h5 class="section-heading">Điều kiện & Giới hạn sử dụng</h5>
+                           <div class="form-row">
+                               <div class="form-group col-md-6">
+                                   <label class="form-label" for="{{ form.min_purchase_amount.id_for_label }}">
+                                       <i class="fa fa-shopping-cart mr-1"></i> Giá trị đơn hàng tối thiểu
+                                   </label>
+                                   <div class="input-group">
+                                       <input type="number" name="{{ form.min_purchase_amount.name }}" id="{{ form.min_purchase_amount.id_for_label }}"
+                                              class="form-control" value="{{ form.min_purchase_amount.value|default_if_none:'' }}"
+                                              placeholder="0" step="any">
+                                       <div class="input-group-append">
+                                           <span class="input-group-text">₫</span>
+                                       </div>
+                                   </div>
+                                   {% if form.min_purchase_amount.help_text %}<small class="form-text text-muted">{{ form.min_purchase_amount.help_text }}</small>{% endif %}
+                                   {% for error in form.min_purchase_amount.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                               </div>
+                               <div class="form-group col-md-6">
+                                   <label class="form-label" for="{{ form.max_usage_count.id_for_label }}">
+                                       <i class="fa fa-hashtag mr-1"></i> {{ form.max_usage_count.label }}
+                                   </label>
+                                   <input type="number" name="{{ form.max_usage_count.name }}" id="{{ form.max_usage_count.id_for_label }}"
+                                          class="form-control" value="{{ form.max_usage_count.value|default_if_none:'' }}"
+                                          placeholder="Không giới hạn" step="1">
+                                   {% if form.max_usage_count.help_text %}<small class="form-text text-muted">{{ form.max_usage_count.help_text }}</small>{% endif %}
+                                   {% for error in form.max_usage_count.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                               </div>
+                           </div>
+
+
+                           <div class="form-row">
+                               <div class="form-group col-md-6">
+                                   <label class="form-label" for="{{ form.max_usage_per_customer.id_for_label }}">
+                                       <i class="fa fa-user mr-1"></i> {{ form.max_usage_per_customer.label }}
+                                   </label>
+                                   <input type="number" name="{{ form.max_usage_per_customer.name }}" id="{{ form.max_usage_per_customer.id_for_label }}"
+                                          class="form-control" value="{{ form.max_usage_per_customer.value|default_if_none:'' }}"
+                                          placeholder="1" step="1">
+                                   {% if form.max_usage_per_customer.help_text %}<small class="form-text text-muted">{{ form.max_usage_per_customer.help_text }}</small>{% endif %}
+                                   {% for error in form.max_usage_per_customer.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                               </div>
+                               <div class="form-group col-md-6">
+                                   <label class="form-label" for="{{ form.applies_to.id_for_label }}">
+                                       <i class="fa fa-tag mr-1"></i> Áp dụng cho
+                                   </label>
+                                   {{ form.applies_to }}
+                                   {% for error in form.applies_to.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                                   {% if form.applies_to.help_text %}<small class="form-text text-muted">{{ form.applies_to.help_text }}</small>{% endif %}
+                               </div>
+                           </div>
+
+
+                           <div class="form-group" id="categories-container" style="display: none;">
+                               <label class="form-label">
+                                   <i class="fa fa-list mr-1"></i> Chọn ngành hàng cụ thể
+                               </label>
+                               <div class="categories-checkbox-list">
+                                   {% for category in form.categories.field.queryset %}
+                                   <div class="form-check">
+                                       <input type="checkbox"
+                                              name="{{ form.categories.name }}"
+                                              value="{{ category.id }}"
+                                              id="category_{{ category.id }}"
+                                              class="form-check-input"
+                                              {% if category in form.categories.value or category.id|stringformat:"s" in form.categories.value|default_if_none:"" %}checked{% endif %}>
+                                       <label class="form-check-label" for="category_{{ category.id }}">
+                                           <i class="fa fa-tag mr-1"></i> {{ category.category_name }}
+                                       </label>
+                                   </div>
+                                   {% endfor %}
+                               </div>
+                               {% if form.categories.help_text %}<small class="form-text text-info"><i class="fa fa-info-circle mr-1"></i> {{ form.categories.help_text }}</small>{% endif %}
+                               {% for error in form.categories.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                           </div>
+
+
+                           <hr class="divider">
+
+
+                           <h5 class="section-heading">Ghi chú nội bộ</h5>
+                           <div class="form-group">
+                               <label class="form-label" for="{{ form.description.id_for_label }}">
+                                   <i class="fa fa-file-text mr-1"></i> {{ form.description.label }}
+                               </label>
+                               <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}"
+                                         rows="4" class="form-control" placeholder="Mô tả mục đích sử dụng mã này hoặc ghi chú nội bộ...">{{ form.description.value|default_if_none:'' }}</textarea>
+                               {% if form.description.help_text %}<small class="form-text text-muted">{{ form.description.help_text }}</small>{% endif %}
+                               {% for error in form.description.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                           </div>
+
+
+                           <div class="action-buttons">
+                               <a href="{% url 'coupons:coupon_list' %}" class="btn btn-outline-secondary">
+                                   <i class="fa fa-times mr-1"></i> Hủy bỏ
+                               </a>
+                               <button type="submit" class="btn btn-primary">
+                                   <i class="fa fa-save mr-1"></i> Lưu & Cập nhật
+                               </button>
+                           </div>
+                       </form>
+                   </div>
+               </article>
+           </main>
+       </div>
+   </div>
+</section>
+
+
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+       const activeCheckbox = document.getElementById('id_active');
+       const notActiveRadio = document.getElementById('not_active');
+       const appliesToSelect = document.getElementById('id_applies_to');
+       const categoriesContainer = document.getElementById('categories-container');
+
+
+       // Logic Hiển thị/Ẩn trường categories
+       function toggleCategoriesDisplay() {
+           if (appliesToSelect && categoriesContainer) {
+               if (appliesToSelect.value === 'CATEGORY') {
+                   categoriesContainer.style.display = 'block';
+               } else {
+                   categoriesContainer.style.display = 'none';
+               }
+           }
+       }
+       toggleCategoriesDisplay();
+       if (appliesToSelect) {
+           appliesToSelect.addEventListener('change', toggleCategoriesDisplay);
+       }
+
+
+       // Logic Đồng bộ Checkbox Active và Radio Inactive
+       if (activeCheckbox && notActiveRadio) {
+           function syncActiveStatus(isCheckboxChanging) {
+               if (isCheckboxChanging) {
+                   notActiveRadio.checked = !activeCheckbox.checked;
+               } else {
+                   activeCheckbox.checked = !notActiveRadio.checked;
+               }
+           }
+           activeCheckbox.addEventListener('change', () => syncActiveStatus(true));
+           notActiveRadio.addEventListener('change', () => syncActiveStatus(false));
+           syncActiveStatus(true);
+       }
+
+
+       // Thêm class 'form-control' cho các Django Widget
+       const djangoWidgets = document.querySelectorAll(
+           '#id_valid_from, #id_valid_to, #id_applies_to, #id_max_discount_amount, #id_description'
+       );
+       djangoWidgets.forEach(widget => {
+           if (widget.tagName !== 'INPUT' || (widget.type !== 'checkbox' && widget.type !== 'radio')) {
+               widget.classList.add('form-control');
+           }
+       });
+   });
+</script>
+{% endblock %}
+

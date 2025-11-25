@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    /* --- GLOBAL SETTINGS --- */
+    :root { --primary: #2152ff; --text-dark: #344767; --text-gray: #8392ab; --bg-body: #f5f7fb; }
+    body { font-family: 'Poppins', sans-serif; color: var(--text-dark); background-color: var(--bg-body); }
+
+    /* --- ANIMATIONS --- */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; } .delay-4 { animation-delay: 0.4s; }
+
+    @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(40, 167, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); } }
+    .status-dot { width: 8px; height: 8px; background-color: #28a745; border-radius: 50%; display: inline-block; margin-right: 5px; animation: pulse-green 2s infinite; }
+
+    /* Chuông vàng */
+    .text-gradient-gold { background: linear-gradient(to bottom, #ffe259, #ffa751); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6)); }
+    @keyframes glow-swing { 0% { transform: rotate(0deg); } 20% { transform: rotate(15deg); } 40% { transform: rotate(-10deg); } 60% { transform: rotate(5deg); } 80% { transform: rotate(-5deg); } 100% { transform: rotate(0deg); } }
+    .bell-ringing { animation: glow-swing 2s infinite ease-in-out; }
+
+    /* --- CARD STYLING --- */
+    .card { border: none; border-radius: 20px; background: #fff; box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03); transition: all 0.3s ease; overflow: visible; position: relative; }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 1rem 3rem rgba(33, 82, 255, 0.15); z-index: 10; }
+
+    /* --- BANNER (Fix Menu bị cắt) --- */
+    .welcome-banner { background: linear-gradient(120deg, #2152ff 0%, #21d4fd 100%); color: white; position: relative; overflow: visible !important; z-index: 500; }
+    .welcome-content { position: relative; z-index: 2; }
+
+    /* --- KPI CARDS --- */
+    .kpi-card { overflow: hidden; } /* KPI cần hidden để bo góc gradient */
+    .icon-shape { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; transition: all 0.3s; }
+
+    /* --- UI ELEMENTS --- */
+    .table thead th { background-color: #f8f9fa; color: var(--text-gray); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: none; padding: 1rem 1.5rem; }
+    .table tbody td { vertical-align: middle; padding: 1rem 1.5rem; border-top: 1px solid #f1f4f8; font-size: 0.9rem; color: var(--text-dark); font-weight: 500; }
+    .row-actions { opacity: 0; transition: opacity 0.2s; } .table-hover tbody tr:hover .row-actions { opacity: 1; }
+    #tableSearchInput { background: #f8faff; border: 1px solid rgba(33, 82, 255, 0.2); padding: 10px 15px; transition: all 0.2s; }
+    #tableSearchInput:focus { background: #fff; border-color: #2152ff; box-shadow: 0 0 0 3px rgba(33, 82, 255, 0.1); }
+    .page-link { border: none; color: var(--text-gray); border-radius: 8px; margin: 0 3px; font-weight: 600; font-size: 0.85rem; }
+    .page-item.active .page-link { background-color: var(--primary); color: white; box-shadow: 0 4px 10px rgba(33, 82, 255, 0.3); }
+</style>
+
+<section class="section-content padding-y" style="background-color: #f5f7fb;">
+    <div class="container">
+        <div class="row">
+            <aside class="col-md-3 animate-up delay-1">
+                {% include 'includes/admin_sidebar.html' %}
+            </aside>
+
+            <main class="col-md-9">
+
+                <article class="card mb-4 welcome-banner animate-up delay-1">
+                    <div class="card-body p-4 welcome-content">
+                        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+                            <div class="d-flex align-items-center mb-3 mb-md-0">
+                                <div class="position-relative mr-3">
+                                    {% if user.userprofile.profile_picture %}
+                                        <img src="{{ user.userprofile.profile_picture.url }}" class="rounded-circle shadow-sm" style="width: 64px; height: 64px; object-fit: cover; border: 3px solid rgba(255,255,255,0.5);">
+                                    {% else %}
+                                        <img src="{% static 'images/avatars/avatar1.jpg' %}" onerror="this.src='https://www.w3schools.com/howto/img_avatar.png'" class="rounded-circle shadow-sm" style="width: 64px; height: 64px; object-fit: cover; border: 3px solid rgba(255,255,255,0.5);">
+                                    {% endif %}
+                                    <span class="status-dot position-absolute" style="bottom: 2px; right: 2px; border: 2px solid #fff;"></span>
+                                </div>
+                                <div>
+                                    <h4 class="mb-1 font-weight-bold text-white">Welcome back, {{ user.first_name }}!</h4>
+                                    <p class="mb-0 text-white-50" style="font-size: 0.95rem;">
+                                        {% if count_pending > 0 %}
+                                            You have <strong class="text-white">{{ count_pending }} orders</strong> waiting for process.
+                                        {% else %}
+                                            Great job! No pending orders today.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <div class="dropdown mr-3">
+                                    <div class="position-relative cursor-pointer text-white-50 hover-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor: pointer; transition: 0.3s;">
+                                        <i class="fas fa-bell text-gradient-gold {% if notif_count > 0 %}bell-ringing{% endif %}" style="font-size: 1.6rem;"></i>
+                                        {% if notif_count > 0 %}
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white text-white" style="top: -8px; right: -8px; font-size: 0.65rem;">{{ notif_count }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="dropdown-menu dropdown-menu-right shadow-lg border-0 mt-3 p-0" style="border-radius: 15px; width: 320px; z-index: 1000;">
+                                        <div class="px-4 py-3 bg-light d-flex justify-content-between align-items-center border-bottom"><h6 class="mb-0 font-weight-bold text-dark">Thông báo</h6><span class="badge badge-pill badge-primary text-white" style="font-size: 0.7rem;">{{ notif_count }} mới</span></div>
+                                        <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                                            {% for notif in notifications %}
+                                            <a href="{{ notif.url }}" class="list-group-item list-group-item-action border-bottom-0 d-flex align-items-start py-3">
+                                                <div class="mr-3"><div class="icon-circle bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;"><i class="fas {{ notif.icon }} {{ notif.color }}"></i></div></div>
+                                                <div class="flex-grow-1"><h6 class="mb-1 font-weight-bold text-dark" style="font-size: 0.85rem;">{{ notif.message|truncatechars:25 }}</h6><p class="mb-0 text-muted small">{{ notif.sub_text }}</p><small class="text-muted" style="font-size: 0.7rem;"><i class="far fa-clock mr-1"></i> {{ notif.time|timesince }} ago</small></div>
+                                            </a>
+                                            {% empty %}
+                                            <div class="text-center py-4"><i class="far fa-bell-slash text-muted mb-2" style="font-size: 2rem;"></i><p class="text-muted small mb-0">Không có thông báo mới</p></div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="text-center py-2 bg-light border-top"><a href="#" class="text-primary font-weight-bold small" style="text-decoration: none;">Xem tất cả</a></div>
+                                    </div>
+                                </div>
+
+                                <a href="{% url 'management:export_orders' %}" class="btn shadow-none font-weight-bold text-white mr-3 d-none d-lg-flex align-items-center btn-toast-trigger" data-msg="Downloading report..." style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(5px); border-radius: 10px; padding: 10px 20px;">
+                                    <i class="fas fa-cloud-download-alt mr-2"></i> Export
+                                </a>
+
+                                <div class="dropdown">
+                                    <button class="btn shadow-none font-weight-bold text-white dropdown-toggle d-flex align-items-center" type="button" data-toggle="dropdown" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(5px); border-radius: 10px; padding: 10px 20px;">
+                                        <i class="far fa-calendar-alt mr-2"></i>{{ current_period|default:"This Month" }}
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right shadow-lg border-0 mt-2" style="border-radius: 12px; padding: 10px;">
+                                        <a class="dropdown-item py-2 rounded" href="?period=7days">Last 7 Days</a>
+                                        <a class="dropdown-item py-2 rounded" href="?period=this_month">This Month</a>
+                                        <a class="dropdown-item py-2 rounded" href="?period=this_year">This Year</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card kpi-card border-0 text-white shadow-lg" style="background: linear-gradient(310deg, #141727 0%, #3a416f 100%);">
+                            <div class="card-body p-3" onclick="openKpiModal('revenue')" style="cursor: pointer;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div><p class="text-uppercase font-weight-bold mb-1" style="font-size: 0.75rem; opacity: 0.8;">Revenue</p><h3 class="font-weight-bolder text-white mb-0" style="font-size: 1.8rem;">${{ total_revenue|floatformat:0 }}</h3></div>
+                                    <div class="icon-shape bg-white shadow text-center border-radius-md"><i class="fas fa-coins" style="color: #3a416f;"></i></div>
+                                </div>
+                                <div class="d-flex align-items-center mt-2">
+                                    {% if growth_rate > 0 %}
+                                        <span class="badge badge-pill badge-success mr-2" style="background: #82d616; color: #fff;"><i class="fas fa-arrow-up"></i> +{{ growth_rate }}%</span>
+                                    {% elif growth_rate < 0 %}
+                                        <span class="badge badge-pill badge-danger mr-2" style="background: #f53939; color: #fff;"><i class="fas fa-arrow-down"></i> {{ growth_rate }}%</span>
+                                    {% else %}
+                                        <span class="badge badge-pill badge-warning mr-2" style="background: #fbcf33; color: #344767;"><i class="fas fa-minus"></i> 0%</span>
+                                    {% endif %}
+                                    <span class="small font-weight-bold" style="font-size: 0.75rem; opacity: 0.8;">growth</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card kpi-card border-0 text-white shadow-lg" style="background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%);">
+                            <div class="card-body p-3" onclick="openKpiModal('orders')" style="cursor: pointer;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div><p class="text-uppercase font-weight-bold mb-1" style="font-size: 0.75rem; opacity: 0.8;">Orders</p><h3 class="font-weight-bolder text-white mb-0" style="font-size: 1.8rem;">{{ total_orders }}</h3></div>
+                                    <div class="icon-shape bg-white shadow text-center border-radius-md"><i class="fas fa-shopping-cart" style="color: #2152ff;"></i></div>
+                                </div>
+                                <div class="d-flex align-items-center mt-2">
+                                    {% if order_growth > 0 %}
+                                        <span class="badge badge-pill badge-success mr-2" style="background: #82d616; color: #fff;"><i class="fas fa-arrow-up"></i> +{{ order_growth }}%</span>
+                                    {% elif order_growth < 0 %}
+                                        <span class="badge badge-pill badge-danger mr-2" style="background: #f53939; color: #fff;"><i class="fas fa-arrow-down"></i> {{ order_growth }}%</span>
+                                    {% else %}
+                                        <span class="badge badge-pill badge-warning mr-2" style="background: #fbcf33; color: #344767;"><i class="fas fa-minus"></i> 0%</span>
+                                    {% endif %}
+                                    <span class="small font-weight-bold" style="font-size: 0.75rem; opacity: 0.8;">growth</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card kpi-card border-0 text-white shadow-lg" style="background: linear-gradient(310deg, #f53939 0%, #fbcf33 100%);">
+                            <div class="card-body p-3" onclick="openKpiModal('clients')" style="cursor: pointer;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div><p class="text-uppercase font-weight-bold mb-1" style="font-size: 0.75rem; opacity: 0.8;">Customers</p><h3 class="font-weight-bolder text-white mb-0" style="font-size: 1.8rem;">{{ total_customers }}</h3></div>
+                                    <div class="icon-shape bg-white shadow text-center border-radius-md"><i class="fas fa-user-plus" style="color: #f53939;"></i></div>
+                                </div>
+                                <div class="d-flex align-items-center mt-2">
+                                    <span class="badge badge-pill badge-light mr-2" style="background: #fff; color: #344767; font-weight: bold;">+{{ new_customers_this_month }}</span>
+                                    <span class="small font-weight-bold" style="font-size: 0.75rem; opacity: 0.8;">new this month</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card kpi-card border-0 text-white shadow-lg" style="background: linear-gradient(310deg, #7928ca 0%, #ff0080 100%);">
+                            <div class="card-body p-3" onclick="openKpiModal('sell_rate')" style="cursor: pointer;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div><p class="text-uppercase font-weight-bold mb-1" style="font-size: 0.75rem; opacity: 0.8;">Sell Rate</p><h3 class="font-weight-bolder text-white mb-0" style="font-size: 1.8rem;">{{ sell_rate }}%</h3></div>
+                                    <div class="icon-shape bg-white shadow text-center border-radius-md"><i class="fas fa-chart-pie" style="color: #7928ca;"></i></div>
+                                </div>
+                                <div class="d-flex align-items-center mt-2">
+                                    {% if sell_rate < 30 %}
+                                        <span class="badge badge-pill badge-danger mr-2" style="background: #f53939;">Slow</span>
+                                        <span class="small font-weight-bold" style="font-size: 0.75rem; opacity: 0.8;">Action needed</span>
+                                    {% elif sell_rate < 60 %}
+                                        <span class="badge badge-pill badge-warning mr-2" style="background: #fbcf33; color: #344767;">Stable</span>
+                                        <span class="small font-weight-bold" style="font-size: 0.75rem; opacity: 0.8;">Stock stable</span>
+                                    {% else %}
+                                        <span class="badge badge-pill badge-success mr-2" style="background: #82d616;">Fast</span>
+                                        <span class="small font-weight-bold" style="font-size: 0.75rem; opacity: 0.8;">Restock soon</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row animate-up delay-3">
+                    <div class="col-md-8 mb-4">
+                        <article class="card h-100">
+                            <header class="card-header bg-white border-bottom-0 pt-4 pl-4 d-flex justify-content-between">
+                                <div><h6 class="font-weight-bold mb-0">Sales Overview</h6><p class="text-muted small mb-0">
+                                    {% if chart_growth > 0 %} <i class="fas fa-arrow-up text-success"></i> <span class="font-weight-bold text-success">{{ chart_growth }}% more</span>
+                                    {% elif chart_growth < 0 %} <i class="fas fa-arrow-down text-danger"></i> <span class="font-weight-bold text-danger">{{ chart_growth }}% less</span>
+                                    {% else %} <i class="fas fa-minus text-warning"></i> <span class="font-weight-bold text-warning">0% change</span> {% endif %}
+                                    in selected period</p></div>
+                                <div class="text-primary cursor-pointer btn-toast-trigger" data-msg="Refreshing chart..."><i class="fas fa-sync-alt"></i></div>
+                            </header>
+                            <div class="card-body"><div id="revenue-trend-chart"></div></div>
+                        </article>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <article class="card h-100">
+                            <header class="card-header bg-white border-bottom-0 pt-4 pl-4"><h6 class="font-weight-bold mb-0">Categories</h6></header>
+                            <div class="card-body d-flex align-items-center justify-content-center"><div id="category-pie-chart" class="w-100"></div></div>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="row animate-up delay-3">
+                    <div class="col-md-6 mb-4">
+                         <article class="card h-100"><header class="card-header bg-white border-bottom-0 pt-4 pl-4"><h6 class="font-weight-bold mb-0">Top Products</h6></header><div class="card-body"><div id="top-products-chart"></div></div></article>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                         <article class="card h-100"><header class="card-header bg-white border-bottom-0 pt-4 pl-4"><h6 class="font-weight-bold mb-0">Customers</h6></header><div class="card-body"><div id="customer-chart"></div></div></article>
+                    </div>
+                </div>
+
+                <article class="card mb-4 animate-up delay-4">
+                    <header class="card-header bg-white border-bottom-0 pt-4 pl-4 pb-2 d-flex justify-content-between align-items-center flex-wrap">
+                        <div><h6 class="font-weight-bold mb-0">Inventory Status</h6><div class="d-flex align-items-center mt-1"><span class="status-dot"></span><small class="text-muted">Updated just now</small></div></div>
+                        <div class="position-relative mt-2 mt-md-0"><i class="fas fa-search position-absolute text-muted" style="top: 10px; left: 15px; font-size: 0.8rem;"></i><input type="text" id="tableSearchInput" class="form-control form-control-sm pl-5" placeholder="Type to search..." style="width: 250px; border-radius: 20px;"></div>
+                    </header>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-items-center mb-0" id="inventoryTable">
+                                <thead><tr><th class="pl-4">Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th class="text-right pr-4">Actions</th></tr></thead>
+                                <tbody>
+                                {% for item in inventory_data %}
+                                <tr>
+                                    <td class="pl-4">
+                                        <div class="d-flex px-2 py-1">
+                                            <div class="icon-shape bg-gradient-primary shadow-sm text-center border-radius-md mr-3" style="width: 40px; height: 40px; background: #f0f2f5; overflow:hidden;">{% if item.image %}<img src="{{ item.image }}" style="width:100%; height:100%; object-fit:cover;">{% else %}<i class="fas fa-box text-primary" style="line-height: 40px;"></i>{% endif %}</div>
+                                            <div class="d-flex flex-column justify-content-center"><h6 class="mb-0 text-sm">{{ item.name }}</h6><p class="text-xs text-muted mb-0">ID: #{{ item.id }}</p></div>
+                                        </div>
+                                    </td>
+                                    <td><span class="text-secondary text-xs font-weight-bold">{{ item.category }}</span></td>
+                                    <td class="font-weight-bold text-sm">${{ item.price }}</td>
+                                    <td><div class="d-flex align-items-center"><span class="mr-2 text-xs font-weight-bold">{{ item.stock }}</span><div class="progress w-100" style="height: 3px; width: 50px !important;"><div class="progress-bar {% if item.stock < 5 %}bg-danger{% elif item.stock < 20 %}bg-warning{% else %}bg-success{% endif %}" role="progressbar" style="width: {% if item.stock > 100 %}100{% else %}{{ item.stock }}{% endif %}%"></div></div></div></td>
+                                    <td><span class="badge badge-sm {{ item.badge }} text-white border-radius-lg">{{ item.status }}</span></td>
+                                    <td class="text-right pr-4"><div class="row-actions"><a href="#" class="text-secondary font-weight-bold text-xs">Edit</a></div></td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <div id="emptyState" class="text-center py-5 d-none"><h6 class="text-muted">No results found</h6></div>
+                        </div>
+                    </div>
+                </article>
+            </main>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="kpiModal" tabindex="-1" aria-labelledby="kpiModalLabel" aria-hidden="true" style="z-index: 10000;">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 text-white" id="kpiModalHeader" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-top-left-radius: 20px; border-top-right-radius: 20px;"><h5 class="modal-title font-weight-bold" id="kpiModalLabel">Details</h5><button type="button" class="close text-white opacity-1" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
+            <div class="modal-body p-4" id="kpiModalBody"><div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></div></div>
+            <div class="modal-footer border-0 bg-light" style="border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;"><button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" data-dismiss="modal">Close</button><a href="#" id="kpiModalActionBtn" class="btn btn-primary btn-sm rounded-pill px-4">View Full Report</a></div>
+        </div>
+    </div>
+</div>
+<div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        Apex.chart = { fontFamily: 'Poppins, sans-serif' };
+
+        // 1. REVENUE & ORDERS MIXED CHART
+        var revenueOptions = {
+            series: [
+                { name: 'Revenue ($)', type: 'area', data: {{ chart_revenue|safe }} },
+                { name: 'Orders (Count)', type: 'line', data: {{ chart_orders_count|safe }} }
+            ],
+            chart: { height: 300, type: 'line', toolbar: { show: false }, zoom: { enabled: false }, animations: { enabled: true } },
+            stroke: { width: [3, 4], curve: 'smooth' },
+            colors: ['#2152ff', '#fbcf33'],
+            fill: { type: ['gradient', 'solid'], gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 100] } },
+            dataLabels: { enabled: false },
+            yaxis: [ { title: { text: 'Revenue' }, labels: { style: { colors: '#8392ab' } } }, { opposite: true, title: { text: 'Orders' }, labels: { style: { colors: '#8392ab' } } } ],
+            xaxis: {
+                categories: {{ chart_dates|safe }},
+                labels: { style: { colors: '#8392ab', fontSize: '11px' }, rotate: -45, hideOverlappingLabels: true },
+                axisBorder: { show: false }, axisTicks: { show: false },
+                tickAmount: 10
+            },
+            tooltip: { shared: true, intersect: false, y: { formatter: function (y) { if (typeof y !== "undefined") return y.toFixed(0); return y; } } },
+            grid: { borderColor: '#f0f2f5', strokeDashArray: 4 }, legend: { position: 'top' }
+        };
+        new ApexCharts(document.querySelector("#revenue-trend-chart"), revenueOptions).render();
+
+        // 2. CATEGORY
+        var categoryOptions = {
+            series: {{ cat_data|safe }}, labels: {{ cat_labels|safe }},
+            chart: { type: 'donut', height: 280 },
+            colors: ['#2152ff', '#3a416f', '#17c1e8', '#cb0c9f', '#fbcf33'],
+            legend: { position: 'bottom', fontSize: '13px' },
+            plotOptions: { pie: { donut: { size: '65%', labels: { show: true, name: { show: true }, value: { show: true, fontSize: '22px', fontWeight: 600, color: '#344767' }, total: { show: true, showAlways: true, label: 'Total', fontSize: '12px', color: '#8392ab' } } } } },
+            dataLabels: { enabled: false }, stroke: { show: false }
+        };
+        new ApexCharts(document.querySelector("#category-pie-chart"), categoryOptions).render();
+
+        // 3. TOP PRODUCTS
+        var topProductOptions = {
+            series: [{ name: 'Sold', data: {{ prod_data|safe }} }],
+            chart: { type: 'bar', height: 300, toolbar: { show: false } },
+            plotOptions: { bar: { borderRadius: 6, horizontal: true, barHeight: '40%', distributed: true } },
+            colors: ['#3a416f', '#2152ff', '#f53939', '#fbcf33', '#17c1e8'],
+            xaxis: { categories: {{ prod_labels|safe }}, labels: { style: { colors: '#8392ab' } }, axisBorder: { show: false } },
+            grid: { borderColor: '#f0f2f5', strokeDashArray: 4 }, legend: { show: false }
+        };
+        new ApexCharts(document.querySelector("#top-products-chart"), topProductOptions).render();
+
+        // 4. CUSTOMERS
+        var customerOptions = {
+            series: {{ cust_data|safe }}, labels: ['Returning Customers', 'New This Month'],
+            chart: { type: 'donut', height: 280 },
+            colors: ['#17c1e8', '#82d616'],
+            legend: { position: 'bottom' },
+            plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: 'Total', fontSize: '13px', color: '#8392ab' } } } } },
+            dataLabels: { enabled: false }
+        };
+        new ApexCharts(document.querySelector("#customer-chart"), customerOptions).render();
+
+        // TOAST & SEARCH Logic
+        document.querySelectorAll('.btn-toast-trigger').forEach(btn => { btn.addEventListener('click', function(e) { const link = this.getAttribute('href'); if (link && link !== '#') { showToast(this.getAttribute('data-msg')); } else { e.preventDefault(); showToast(this.getAttribute('data-msg')); } }); });
+        const searchInput = document.getElementById('tableSearchInput'), table = document.getElementById('inventoryTable'), emptyState = document.getElementById('emptyState');
+        if(searchInput && table) { searchInput.addEventListener('keyup', function() { const filter = searchInput.value.toLowerCase(); const rows = table.getElementsByTagName('tr'); let hasVisibleRows = false; for (let i = 1; i < rows.length; i++) { let cells = rows[i].getElementsByTagName('td'); let found = false; if (cells.length > 0) { const txt = cells[0].textContent || cells[0].innerText; if (txt.toLowerCase().indexOf(filter) > -1) found = true; } rows[i].style.display = found ? "" : "none"; if (found) hasVisibleRows = true; } if (!hasVisibleRows) { table.classList.add('d-none'); emptyState.classList.remove('d-none'); } else { table.classList.remove('d-none'); emptyState.classList.add('d-none'); } }); }
+    });
+
+    function showToast(message) {
+        const container = document.getElementById('toast-container'); if (!container) return;
+        const toast = document.createElement('div');
+        toast.style.cssText = `background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%); color: white; padding: 12px 24px; border-radius: 10px; margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); font-family: 'Poppins', sans-serif; min-width: 250px; transform: translateX(120%); transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; align-items: center; z-index: 10000;`;
+        toast.innerHTML = `<i class="fas fa-info-circle mr-3"></i><span>${message || 'Processing...'}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => { toast.style.transform = 'translateX(0)'; }, 100);
+        setTimeout(() => { toast.style.transform = 'translateX(120%)'; setTimeout(() => { toast.remove(); }, 500); }, 3000);
+    }
+
+    // --- KPI POPUP LOGIC ---
+    const recentOrdersData = JSON.parse('{{ latest_orders_json|safe }}');
+    const recentCustomersData = JSON.parse('{{ latest_customers_json|safe }}');
+    const growthRate = {{ growth_rate|default:0 }};
+
+    function buildRevenueContent() {
+        let growthColor = 'secondary', growthIcon = 'minus', growthText = '0%';
+        if (growthRate > 0) { growthColor = 'success'; growthIcon = 'arrow-up'; growthText = '+' + growthRate + '%'; }
+        else if (growthRate < 0) { growthColor = 'danger'; growthIcon = 'arrow-down'; growthText = growthRate + '%'; }
+
+        let html = `<div class="row align-items-center mb-3"><div class="col-6"><small class="text-uppercase text-muted font-weight-bold">Total Revenue</small><h2 class="text-dark font-weight-bolder mb-0" style="font-family: 'Poppins', sans-serif;">${{ total_revenue|floatformat:0 }}</h2></div><div class="col-6 text-right"><span class="badge badge-${growthColor} px-3 py-2" style="font-size:0.8rem">${growthText} Growth <i class="fas fa-${growthIcon} text-xs ml-1"></i></span></div></div><h6 class="text-uppercase text-xs text-muted font-weight-bolder mb-2">Recent Transactions</h6><div class="bg-light rounded p-2" style="max-height: 250px; overflow-y: auto;"><ul class="list-group list-group-flush bg-transparent">`;
+        if (recentOrdersData.length === 0) { html += `<li class="list-group-item bg-transparent text-center text-muted">No recent orders.</li>`; }
+        else { recentOrdersData.forEach(order => { let badgeColor = order.status === 'New' ? 'primary' : (order.status === 'Completed' ? 'success' : 'secondary'); html += `<li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-2 py-2 border-bottom"><div><div class="d-flex align-items-center"><span class="font-weight-bold text-dark text-sm mr-2">#${order.code}</span><span class="badge badge-${badgeColor}" style="font-size: 0.6rem;">${order.status}</span></div><small class="text-muted" style="font-size: 0.75rem;"><i class="far fa-user mr-1"></i>${order.customer} • <i class="far fa-clock mx-1"></i>${order.time}</small></div><div class="text-right"><span class="font-weight-bold text-dark">${order.total}</span></div></li>`; }); }
+        html += `</ul></div>`; return html;
+    }
+
+    function buildClientContent() {
+        let html = `<div class="text-center mb-4"><div class="rounded-circle shadow text-white d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px; font-size: 24px; background: linear-gradient(310deg, #f53939 0%, #fbcf33 100%);"><i class="fas fa-users"></i></div><h2 class="font-weight-bold text-dark mb-0" style="font-family: 'Poppins', sans-serif;">{{ total_customers }}</h2><p class="text-muted">Total Members</p></div><h6 class="text-uppercase text-xs text-muted font-weight-bolder mb-2">Newest Members</h6><div class="bg-light rounded p-2" style="max-height: 250px; overflow-y: auto;"><ul class="list-group list-group-flush bg-transparent">`;
+        if (recentCustomersData.length === 0) { html += `<li class="list-group-item bg-transparent text-center text-muted">No new members.</li>`; }
+        else { recentCustomersData.forEach(user => { html += `<li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-2 py-2 border-bottom"><div class="d-flex align-items-center"><div class="avatar rounded-circle bg-white border border-warning text-warning mr-3 d-flex align-items-center justify-content-center shadow-sm" style="width:35px; height:35px; font-weight:bold;">${user.initial}</div><div class="d-flex flex-column"><span class="font-weight-bold text-dark text-sm">${user.name}</span><small class="text-muted" style="font-size: 0.7rem;">${user.email}</small></div></div><div class="text-right"><span class="badge badge-secondary" style="font-size: 0.6rem;">${user.role}</span><br><small class="text-xs text-muted">${user.joined}</small></div></li>`; }); }
+        html += `</ul></div>`; return html;
+    }
+
+    const kpiData = {
+        'revenue': { title: 'Revenue Details', color: 'linear-gradient(135deg, #141727 0%, #3a416f 100%)', content: buildRevenueContent(), link: "{% url 'management:export_orders' %}", btnText: "Export Excel" },
+        'orders': { title: 'Order Statistics', color: 'linear-gradient(310deg, #2152ff 0%, #21d4fd 100%)', content: `<div class="text-center mb-4"><h1 class="display-4 font-weight-bold text-primary">{{ total_orders }}</h1><p class="text-muted">Total Orders</p></div><div class="row text-center"><div class="col-6 border-right"><h5 class="text-warning font-weight-bold">{% if count_pending %}{{ count_pending }}{% else %}0{% endif %}</h5><small>Pending</small></div><div class="col-6"><h5 class="text-success font-weight-bold">{{ count_completed }}</h5><small>Completed</small></div></div>`, link: "#", btnText: "Manage Orders" },
+        'clients': { title: 'Customer Insights', color: 'linear-gradient(310deg, #f53939 0%, #fbcf33 100%)', content: buildClientContent(), link: "#", btnText: "View User List" },
+        'sell_rate': { title: 'Inventory Health', color: 'linear-gradient(310deg, #7928ca 0%, #ff0080 100%)', content: (function() { const rate = {{ sell_rate }}; let color = '#28a745', statusText = 'Excellent', advice = 'Strong sales.'; if (rate < 30) { color = '#f53939'; statusText = 'Slow'; advice = 'Run promotions.'; } else if (rate < 60) { color = '#fbcf33'; statusText = 'Stable'; advice = 'Balanced.'; } return `<div class="py-3"><div class="d-flex justify-content-center mb-4"><div class="position-relative d-flex align-items-center justify-content-center" style="width: 160px; height: 160px; border-radius: 50%; background: conic-gradient(${color} ${rate}%, #f0f2f5 0%); box-shadow: 0 10px 20px rgba(0,0,0,0.05);"><div class="bg-white rounded-circle d-flex flex-column align-items-center justify-content-center shadow-inner" style="width: 130px; height: 130px;"><h2 class="mb-0 font-weight-bold" style="color: ${color};">${rate}%</h2><small class="text-muted text-xs text-uppercase font-weight-bold">Sell Rate</small></div></div></div><div class="text-center px-4"><h5 class="font-weight-bold text-dark mb-1">Status: <span style="color:${color}">${statusText}</span></h5><p class="text-sm text-muted mb-3">${advice}</p></div></div>`; })(), link: "#", btnText: "Check Inventory" }
+    };
+
+    function openKpiModal(type) {
+        const data = kpiData[type]; if (!data) return;
+        document.getElementById('kpiModalLabel').innerText = data.title;
+        document.getElementById('kpiModalHeader').style.background = data.color;
+        document.getElementById('kpiModalBody').innerHTML = data.content;
+        const actionBtn = document.getElementById('kpiModalActionBtn');
+        if(actionBtn) { actionBtn.href = data.link; actionBtn.innerText = data.btnText; }
+        try { var myModal = new bootstrap.Modal(document.getElementById('kpiModal')); myModal.show(); } catch (e) { $('#kpiModal').modal('show'); }
+    }
+</script>
+{% endblock %}

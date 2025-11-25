@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+<section class="section-content padding-y bg">
+   <div class="container">
+       <div class="row">
+
+
+           <!-- Sidebar -->
+           <aside class="col-md-3">
+               {% include 'includes/admin_sidebar.html' %}
+           </aside>
+
+
+           <!-- Main -->
+           <main class="col-md-9">
+
+
+               <article class="card mb-3">
+                   <header class="card-header d-flex justify-content-between align-items-center">
+                       <strong>
+                           <i class="fa fa-ticket"></i>
+                           Thông tin mã: {{ coupon.code }}
+                       </strong>
+                       <a href="{% url 'coupons:coupon_list' %}" class="btn btn-sm btn-light">
+                           &larr; Quay lại danh sách
+                       </a>
+                   </header>
+
+
+                   <div class="card-body">
+
+
+                       <div class="row mb-3">
+                           <div class="col-md-6">
+                               <h6 class="text-muted">Thông tin cơ bản</h6>
+                               <p class="mb-1">
+                                   <strong>Mã:</strong> {{ coupon.code }}
+                               </p>
+                               <p class="mb-1">
+                                   <strong>Giảm giá:</strong> {{ coupon.discount }}%
+                               </p>
+                               <p class="mb-1">
+                                   <strong>Giảm tối đa:</strong>
+                                   {% if coupon.max_discount_amount > 0 %}
+                                       {{ coupon.max_discount_amount|floatformat:0 }} VND
+                                   {% else %}
+                                       Không giới hạn
+                                   {% endif %}
+                               </p>
+                               <p class="mb-1">
+                                   <strong>Đơn tối thiểu:</strong>
+                                   {% if coupon.min_purchase_amount > 0 %}
+                                       {{ coupon.min_purchase_amount|floatformat:0 }} VND
+                                   {% else %}
+                                       Không yêu cầu
+                                   {% endif %}
+                               </p>
+                           </div>
+
+
+                           <div class="col-md-6">
+                               <h6 class="text-muted">Hiệu lực & giới hạn</h6>
+                               <p class="mb-1">
+                                   <strong>Thời gian:</strong><br>
+                                   {{ coupon.valid_from|date:"d/m/Y" }} - {{ coupon.valid_to|date:"d/m/Y" }}
+                               <p class="mb-1">
+                                   <strong>Trạng thái:</strong><br>
+                                   {% with status_label=coupon.get_status_label %}
+                                       <span class="badge badge-{{ status_label.1 }}">
+                                           {{ status_label.0 }}
+                                       </span>
+                                   {% endwith %}
+                               </p>
+                               <p class="mb-1">
+                                   <strong>Tổng số coupon:</strong>
+                                   {% if coupon.max_usage_count > 0 %}
+                                       {{ coupon.max_usage_count }}
+                                   {% else %}
+                                       Không giới hạn
+                                   {% endif %}
+                               </p>
+                               <p class="mb-1">
+                                   <strong>Lượt đã dùng:</strong> {{ total_used }}
+                                 {% if remain != None %}
+                                       (còn {{ remain }} lượt)
+
+
+                                   {% endif %}
+                               </p>
+                               <p class="mb-1">
+                                   <strong>Số khách đã dùng:</strong> {{ distinct_users }}
+                               </p>
+                           </div>
+                       </div>
+
+
+                       <hr>
+
+
+                       <div class="mb-2">
+                           <h6 class="text-muted">Phạm vi áp dụng</h6>
+                           <p class="mb-1">
+                               <strong>Áp dụng:</strong> {{ coupon.get_applies_to_display }}
+                           </p>
+                           {% if coupon.applies_to == 'CATEGORY' %}
+                               <p class="mb-1">
+                                   <strong>Ngành hàng:</strong>
+                                   {% for cat in coupon.categories.all %}
+                                       <span class="badge badge-light">{{ cat.category_name }}</span>
+                                   {% empty %}
+                                       <span class="text-muted">Chưa chọn ngành hàng.</span>
+                                   {% endfor %}
+                               </p>
+                           {% endif %}
+                       </div>
+
+
+                   </div>
+
+
+                   <footer class="card-footer d-flex justify-content-between">
+                       <div>
+                           <form method="post"
+                                 action="{% url 'coupons:coupon_delete' pk=coupon.pk %}"
+                                 class="d-inline"
+                                 onsubmit="return confirm('Bạn có chắc chắn muốn xóa mã {{ coupon.code }}?');">
+                               {% csrf_token %}
+                               <button type="submit" class="btn btn-outline-danger">
+                                   <i class="fa fa-trash"></i> Xóa
+                               </button>
+                           </form>
+                       </div>
+
+
+                       <div>
+                           <a href="{% url 'coupons:coupon_update' pk=coupon.pk %}"
+                              class="btn btn-primary">
+                               <i class="fa fa-edit"></i> Chỉnh sửa
+                           </a>
+                       </div>
+                   </footer>
+               </article>
+
+
+           </main>
+       </div>
+   </div>
+</section>
+{% endblock %}
+

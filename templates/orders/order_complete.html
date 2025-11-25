@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Success Message -->
+<div class="container" style="margin-top: 50px;">
+    <div class="text-center">
+        <i class="fas fa-check-circle" style="font-size: 72px; margin-bottom: 20px; color: #28A745;"></i>
+        <h2 class="text-success">Payment Successful!</h2>
+        <p class="text-muted">Thank you for your order. Your order has been received.</p>
+        <a href="{% url 'store' %}" class="btn btn-success mt-3">
+            <i class="fa fa-shopping-bag"></i> Continue Shopping
+        </a>
+    </div>
+</div>
+
+<!-- Invoice -->
+<div class="container" style="max-width: 800px; margin: 50px auto; background: #f8f9fa; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <div class="invoice">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <img src="{% static 'images/logo.png' %}" alt="Logo" style="max-height: 50px;">
+            </div>
+            <div class="col-md-6 text-right">
+                <h4 class="text-muted mb-0">INVOICE</h4>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Order Info & Customer Info -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h6 class="text-uppercase text-muted mb-3">Order Information</h6>
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td class="text-muted">Order #</td>
+                        <td><strong>{{ order_number }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Transaction ID</td>
+                        <td><strong>{{ transID }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Order Date</td>
+                        <td>{{ order.created_at|date:"M d, Y, g:i a" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Status</td>
+                        <td><span class="badge badge-success">{{ payment.status }}</span></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-uppercase text-muted mb-3">Invoiced To</h6>
+                <address>
+                    <strong>{{ order.full_name }}</strong><br>
+                    {{ order.full_address }}<br>
+                    {{ order.city }}, {{ order.state }}<br>
+                    {{ order.country }}
+                </address>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Products Table -->
+        <h6 class="text-uppercase text-muted mb-3">Products</h6>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="bg-light">
+                    <tr>
+                        <th>Product</th>
+                        <th class="text-center">Qty</th>
+                        <th class="text-right">Price</th>
+                        <th class="text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in ordered_products %}
+                    <tr>
+                        <td>
+                            <strong>{{ item.product.product_name }}</strong>
+                            {% if item.variations.all %}
+                                <br>
+                                <small class="text-muted">
+                                    {% for var in item.variations.all %}
+                                        <span class="badge badge-secondary">
+                                            {{ var.variation_category|capfirst }}: {{ var.variation_value|capfirst }}
+                                        </span>
+                                    {% endfor %}
+                                </small>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">{{ item.quantity }}</td>
+                        <td class="text-right">${{ item.product_price|floatformat:1 }}</td>
+                        <td class="text-right"><strong>${{ item.item_total|floatformat:1 }} USD</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <hr>
+
+        <!-- Total Summary -->
+        <div class="row">
+            <div class="col-md-6 offset-md-6">
+                <table class="table table-sm">
+                    <tr>
+                        <td class="text-right"><strong>Sub Total:</strong></td>
+                        <td class="text-right">${{ subtotal|floatformat:1 }} USD</td>
+                    </tr>
+                    {% if order.discount > 0 %}
+                    <tr class="text-success">
+                        <td class="text-right"><strong>Discount ({{ order.coupon }}):</strong></td>
+                        <td class="text-right">-${{ order.discount|floatformat:1 }} USD</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <td class="text-right"><strong>Tax (VAT 8%):</strong></td>
+                        <td class="text-right">${{ order.VAT|floatformat:1 }} USD</td>
+                    </tr>
+                    <tr class="bg-light">
+                        <td class="text-right"><h5 class="mb-0">Grand Total:</h5></td>
+                        <td class="text-right"><h5 class="text-primary mb-0">${{ order.order_total|floatformat:1 }} USD</h5></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Footer -->
+        <div class="text-center mt-4">
+            <p class="text-muted mb-0">Thank you for shopping with us!</p>
+            <p class="text-muted small">If you have any questions, please contact our customer support.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Add some custom CSS for multiply filter alternative -->
+<style>
+    .invoice {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+
+{% endblock %}

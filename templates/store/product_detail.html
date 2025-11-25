@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    /* Định nghĩa biến màu chủ đạo */
+    :root {
+        --primary: #2152ff;
+        --text-dark: #344767;
+        --text-gray: #8392ab;
+        --dashboard-gradient: linear-gradient(120deg, #2152ff 0%, #21d4fd 100%);
+        --dashboard-light-bg: #e3f2ff;
+    }
+
+    /* === BANNER TRÊN CÙNG (Đồng bộ) === */
+    .product-detail-banner {
+        background-color: white !important;
+        padding-top: 25px;
+        padding-bottom: 25px;
+        border-bottom: 1px solid #f0f2f5;
+        text-align: center;
+    }
+    .product-detail-banner .title-page {
+        font-weight: 800;
+        font-size: 2.5rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin: 0;
+        background: var(--dashboard-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        display: inline-block;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+    }
+
+    /* === CSS CHUNG CHO CÁC CARD/KHỐI (Đồng bộ Dashboard) === */
+    .card {
+        border: none;
+        border-radius: 20px !important;
+        box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    /* === NÚT PRIMARY (Gradient - Add to cart & Apply) === */
+    .btn-primary {
+        background: var(--dashboard-gradient) !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: 0 4px 10px rgba(33, 82, 255, 0.3);
+        transition: all 0.3s;
+        border-radius: 50px !important;
+        padding: 12px 25px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(33, 82, 255, 0.4);
+    }
+    .btn-primary:focus {
+        box-shadow: 0 0 0 0.2rem rgba(33, 82, 255, 0.3) !important;
+    }
+
+    /* === TÙY CHỈNH CHỌN SẢN PHẨM (NÚT BẤM) === */
+    .item-option-select {
+        margin-bottom: 20px;
+    }
+    .item-option-select h6 {
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 10px;
+    }
+    .option-buttons-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+    }
+    .option-button {
+        padding: 8px 20px;
+        border: 2px solid #dee2e6;
+        border-radius: 25px;
+        background-color: white;
+        color: var(--text-dark);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.95rem;
+        user-select: none;
+    }
+    .option-button:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+    .option-button.active {
+        background-color: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 4px 8px rgba(33, 82, 255, 0.3);
+    }
+    /* === END TÙY CHỈNH CHỌN SẢN PHẨM === */
+
+
+    /* Chi tiết sản phẩm cụ thể */
+    .gallery-wrap .img-big-wrap {
+        height: 450px;
+        border: 1px solid #e9ecef;
+        border-radius: 20px;
+        box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.05);
+        overflow: hidden;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .gallery-wrap .img-big-wrap img {
+        height: 100%;
+        width: 100%;
+        object-fit: contain;
+    }
+    .gallery-wrap .thumbs-wrap {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+    .gallery-wrap .item-thumb {
+        width: 80px;
+        height: 80px;
+        border: 1px solid #dee2e6;
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .gallery-wrap .item-thumb:hover, .gallery-wrap .item-thumb.active {
+        border-color: var(--primary);
+        box-shadow: 0 2px 8px rgba(33, 82, 255, 0.2);
+        transform: translateY(-2px);
+    }
+    .gallery-wrap .item-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Chi tiết văn bản sản phẩm */
+    .info-main .title {
+        font-weight: 700; color: var(--text-dark); font-size: 2.2rem; margin-bottom: 10px;
+    }
+    .info-main .price-detail {
+        font-weight: 700; color: var(--primary); font-size: 1.8rem; margin-bottom: 20px;
+    }
+    .info-main .product-description {
+        color: var(--text-gray); line-height: 1.6; margin-bottom: 25px;
+    }
+</style>
+
+<section class="section-pagetop product-detail-banner">
+  <div class="container">
+    <h2 class="title-page">DKMV STORE</h2>
+  </div>
+</section>
+<section class="section-content padding-y">
+<div class="container">
+
+<div class="card card-detail">
+    <div class="row no-gutters">
+        <aside class="col-md-6">
+            <div class="gallery-wrap">
+                <div class="img-big-wrap">
+                    <a href="#"><img src="{{ single_product.images.url }}" alt="{{ single_product.product_name }}"></a>
+                </div>
+                <div class="thumbs-wrap">
+                    {% for i in single_product.image_set.all %}
+                        <a href="#" class="item-thumb"> <img src="{{ i.image.url }}" alt="Small image of {{ single_product.product_name }}"></a>
+                    {% endfor %}
+
+                    {% if not single_product.image_set.all %}
+                        <a href="#" class="item-thumb active"> <img src="{{ single_product.images.url }}" alt="Image placeholder 1"></a>
+                        <a href="#" class="item-thumb"> <img src="{{ single_product.images.url }}" alt="Image placeholder 2"></a>
+                    {% endif %}
+                </div>
+            </div>
+        </aside>
+        <main class="col-md-6 border-left">
+            <form action="{% url 'add_cart' single_product.id %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="color" id="selectedColorInput" required>
+                <input type="hidden" name="size" id="selectedSizeInput" required>
+
+                <article class="content-body p-4 info-main">
+
+                    <h2 class="title">{{ single_product.product_name }}</h2>
+
+                    <div class="mb-3">
+                        <var class="price h4 price-detail">{{ single_product.price }} đ</var>
+                    </div>
+
+                    <p class="product-description">
+                        {{ single_product.description }}
+                    </p>
+
+                    <hr>
+                    <div class="row">
+                        <div class="item-option-select col-md-12">
+                            <h6>Select Color</h6>
+                            <div class="option-buttons-container" id="colorOptions">
+                                {% for color_value in colors %}
+                                    <span class="option-button" data-value="{{ color_value }}">{{ color_value }}</span>
+                                {% empty %}
+                                    <span class="text-muted small">No colors available in stock.</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="item-option-select col-md-12 mb-3">
+                            <h6>Select Size</h6>
+                            <div class="option-buttons-container" id="sizeOptions">
+                                {% for size_value in sizes %}
+                                    <span class="option-button" data-value="{{ size_value }}">{{ size_value }}</span>
+                                {% empty %}
+                                    <span class="text-muted small">No sizes available in stock.</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="stockMessageContainer"></div>
+
+                    <hr>
+                    <button type="submit" class="btn btn-primary btn-lg" id="addToCartButton">
+                        <i class="fa fa-shopping-cart mr-2"></i> Add to cart
+                    </button>
+                </article>
+            </form>
+        </main>
+    </div>
+</div>
+
+</div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const colorOptionsContainer = document.getElementById("colorOptions");
+    const sizeOptionsContainer = document.getElementById("sizeOptions");
+    const selectedColorInput = document.getElementById("selectedColorInput");
+    const selectedSizeInput = document.getElementById("selectedSizeInput");
+    const addToCartButton = document.getElementById("addToCartButton");
+    const messageContainer = document.getElementById("stockMessageContainer");
+
+    // Tạo container thông báo
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'mt-2 alert';
+    messageDiv.style.borderRadius = '10px';
+    messageDiv.style.display = 'none';
+    messageContainer.appendChild(messageDiv);
+
+    // Vô hiệu hóa nút Add to cart nếu chưa chọn đủ
+    addToCartButton.disabled = true;
+
+    // Hàm để xử lý click vào nút tùy chọn
+    function handleOptionClick(event, inputElement, containerElement) {
+        // Kiểm tra xem phần tử được click có phải là nút không
+        if (!event.target.classList.contains('option-button')) return;
+
+        // Xóa trạng thái 'active' của tất cả các nút trong container này
+        containerElement.querySelectorAll('.option-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Thêm trạng thái 'active' cho nút vừa click
+        event.target.classList.add('active');
+
+        // Cập nhật giá trị vào input hidden
+        inputElement.value = event.target.dataset.value;
+
+        // Sau khi chọn, kiểm tra lại trạng thái stock
+        updateStockStatus();
+    }
+
+    // Gán sự kiện cho các nút màu sắc
+    colorOptionsContainer.addEventListener('click', (event) => handleOptionClick(event, selectedColorInput, colorOptionsContainer));
+
+    // Gán sự kiện cho các nút kích thước
+    sizeOptionsContainer.addEventListener('click', (event) => handleOptionClick(event, selectedSizeInput, sizeOptionsContainer));
+
+    function updateStockStatus() {
+        const color = selectedColorInput.value;
+        const size = selectedSizeInput.value;
+        const productId = {{ single_product.id }};
+
+        // Kiểm tra xem cả Màu và Size đã được chọn chưa
+        if (color && size && color !== '' && size !== '') {
+
+            messageDiv.style.display = 'block';
+            messageDiv.className = 'mt-2 alert alert-warning';
+            messageDiv.innerHTML = 'Checking stock...';
+            addToCartButton.disabled = true;
+
+            const url = "{% url 'check_variation_stock' %}" +
+                        `?product_id=${productId}&color=${color}&size=${size}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.available) {
+                        // Sẵn hàng
+                        messageDiv.className = 'mt-2 alert alert-success';
+                        messageDiv.innerHTML = `Available`;
+                        addToCartButton.disabled = false;
+                    } else {
+                        // Hết hàng hoặc Biến thể không tồn tại
+                        messageDiv.className = 'mt-2 alert alert-danger';
+                        messageDiv.innerHTML = `❌ ${data.message || 'Error checking variation.'}`;
+                        addToCartButton.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi AJAX:', error);
+                    messageDiv.className = 'mt-2 alert alert-danger';
+                    messageDiv.innerHTML = 'Error checking stock.';
+                    addToCartButton.disabled = true;
+                });
+        } else {
+            // Chưa chọn đủ Màu và Size
+            messageDiv.style.display = 'none';
+            addToCartButton.disabled = true;
+        }
+    }
+
+    // Khởi tạo trạng thái ban đầu của nút Add to cart (disabled)
+    updateStockStatus();
+});
+</script>
+
+{% endblock %}

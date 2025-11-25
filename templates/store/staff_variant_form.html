@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    /* --- GLOBAL VARIABLES & RESET --- */
+    :root {
+        --primary: #2152ff;
+        --text-dark: #344767;
+        --text-gray: #8392ab;
+        --bg-body: #f5f7fb;
+        /* MÀU NHẤN CHỦ ĐẠO */
+        --accent-gradient: linear-gradient(310deg, var(--primary) 0%, #21d4fd 100%);
+        --accent-color: var(--primary);
+    }
+    body { font-family: 'Poppins', sans-serif; color: var(--text-dark); background-color: var(--bg-body); }
+
+    /* --- ANIMATIONS --- */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+
+    /* --- CARD STYLING --- */
+    .card {
+        border: none;
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
+        transition: 0.3s ease;
+        overflow: hidden;
+    }
+
+    /* === HEADER BANNER (ĐÃ LÀM NHỎ) === */
+    .form-header-banner {
+        background: var(--accent-gradient);
+        color: white;
+        padding: 15px 30px; /* GIẢM PADDING DỌC */
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .form-header-banner h4 {
+        margin-bottom: 0;
+        font-weight: 700;
+        z-index: 2;
+        font-size: 1.25rem; /* GIẢM KÍCH THƯỚC CHỮ TIÊU ĐỀ */
+    }
+    .btn-back-coupon {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 8px; /* Giảm bo góc */
+        padding: 6px 12px; /* Giảm padding nút Back */
+        font-weight: 600;
+        transition: 0.2s;
+        font-size: 0.9rem;
+    }
+    .btn-back-coupon:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    /* === FORM & INPUT STYLING (TĂNG BO GÓC INPUT) === */
+    label {
+        font-weight: 600;
+        margin-top: 0;
+        display: block;
+    }
+    .form-control, textarea {
+        border-radius: 10px; /* GIẢM BO GÓC INPUT VỀ 10PX */
+        border: 1px solid #e9ecef;
+        padding: 10px 15px; /* GIẢM PADDING INPUT */
+        box-shadow: none;
+        transition: 0.3s;
+        font-weight: 500;
+        margin-bottom: 5px; /* Giảm khoảng cách dưới input */
+    }
+    .form-control:focus, textarea:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(33, 82, 255, 0.1);
+    }
+
+    /* === FORM GROUPING STYLE (Tiêu đề phụ) === */
+    .form-section-title {
+        color: var(--accent-color);
+        font-weight: 700;
+        font-size: 1.1rem;
+        border-left: 4px solid var(--accent-color);
+        padding-left: 10px;
+        margin-bottom: 20px; /* GIẢM MARGIN DƯỚI */
+        margin-top: 20px; /* GIẢM MARGIN TRÊN */
+    }
+
+    /* === BUTTON STYLING (SAVE - ĐÃ LÀM NHỎ) === */
+    .btn-save-primary {
+        background: var(--accent-gradient);
+        color: white;
+        border: none;
+        border-radius: 8px; /* GIẢM BO GÓC NÚT */
+        padding: 8px 18px; /* GIẢM PADDING NÚT SAVE */
+        font-weight: 600;
+        box-shadow: 0 4px 7px rgba(33, 82, 255, 0.3);
+        transition: 0.3s;
+        text-transform: uppercase;
+        font-size: 0.9rem; /* LÀM NHỎ TEXT */
+    }
+    .btn-save-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(33, 82, 255, 0.4);
+        color: white;
+    }
+
+    /* --- BUTTON STYLING (CANCEL - ĐÃ LÀM NHỎ) --- */
+    .btn-secondary-flat {
+        border-radius: 8px; /* GIẢM BO GÓC NÚT */
+        padding: 8px 18px; /* GIẢM PADDING NÚT CANCEL */
+        border: 1px solid #dfe4ea;
+        background-color: #f5f7fb;
+        color: var(--text-dark);
+        font-weight: 600;
+        margin-left: 10px; /* Giảm khoảng cách giữa 2 nút */
+        transition: 0.2s;
+        font-size: 0.9rem; /* LÀM NHỎ TEXT */
+    }
+    .btn-secondary-flat:hover {
+        background-color: #e9ecef;
+    }
+
+</style>
+
+
+<section class="section-content padding-y" style="background-color: var(--bg-body); min-height: 100vh;">
+    <div class="container">
+        <div class="row">
+            <aside class="col-md-3 animate-up delay-1">
+                {% include 'includes/admin_sidebar.html' %}
+            </aside>
+
+            <main class="col-md-9 animate-up delay-2">
+
+                <article class="card p-0">
+
+                    <div class="form-header-banner">
+                        <h4>
+                            {% if title == "Sửa combo" %}
+                                Edit Variant Combo — {{ product.product_name }}
+                            {% else %}
+                                Add New Variant Combo — {{ product.product_name }}
+                            {% endif %}
+                        </h4>
+                        <a href="{% url 'staff_variant_by_product' product.id %}" class="btn-back-coupon">
+                            ← Back
+                        </a>
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <form action="" method="POST">
+                            {% csrf_token %}
+
+                            {% include 'includes/alerts.html' %}
+
+                            <h5 class="form-section-title">VARIANT DETAILS</h5>
+
+                            <div class="form-group mb-4">
+                                <label for="id_color">Color:</label>
+                                {{ form.color }}
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="id_size">Size:</label>
+                                {{ form.size }}
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="id_stock">Stock:</label>
+                                {{ form.stock }}
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="d-flex justify-content-start">
+                                <button type="submit" class="btn btn-save-primary">
+                                    SAVE
+                                </button>
+
+                                <a href="{% url 'staff_variant_by_product' product.id %}" class="btn btn-secondary-flat">
+                                    CANCEL
+                                </a>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </article>
+
+            </main>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

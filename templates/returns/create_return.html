@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+<section class="section-content padding-y bg">
+   <div class="container" style="max-width: 900px;">
+
+
+       <!-- Back Button -->
+       <a href="{% url 'my_orders' %}" class="btn btn-outline-secondary btn-sm mb-3">
+           <i class="fa fa-arrow-left"></i> Back to My Orders
+       </a>
+
+
+       <div class="card">
+           <div class="card-header bg-danger text-white">
+               <h4 class="mb-0"><i class="fa fa-undo"></i> Request Return for Order #{{ order.order_number }}</h4>
+           </div>
+           <div class="card-body">
+
+
+               <!-- Alert -->
+               <div class="alert alert-info">
+                   <i class="fa fa-info-circle"></i>
+                   <strong>Return Policy:</strong> You have <strong>{{ days_left }} days</strong> left to return this order.
+                   Please upload clear images and provide detailed reason for return.
+               </div>
+
+
+               <!-- Order Info -->
+               <div class="card mb-4">
+                   <div class="card-body">
+                       <h6 class="text-muted mb-3">Order Information</h6>
+                       <table class="table table-sm table-borderless">
+                           <tr>
+                               <td class="text-muted" style="width: 150px;">Order Date:</td>
+                               <td>{{ order.created_at|date:"M d, Y, g:i a" }}</td>
+                           </tr>
+                           <tr>
+                               <td class="text-muted">Order Total:</td>
+                               <td><strong>${{ order.order_total }}</strong></td>
+                           </tr>
+                           <tr>
+                               <td class="text-muted">Status:</td>
+                               <td><span class="badge badge-success">{{ order.status }}</span></td>
+                           </tr>
+                       </table>
+                   </div>
+               </div>
+
+
+               <!-- Return Form -->
+               <form method="POST" enctype="multipart/form-data">
+                   {% csrf_token %}
+
+
+                   <!-- Select Items to Return -->
+                   <h6 class="mb-3">Select Items to Return:</h6>
+                   <div class="table-responsive mb-4">
+                       <table class="table table-bordered">
+                           <thead class="bg-light">
+                               <tr>
+                                   <th style="width: 50px;">Select</th>
+                                   <th>Product</th>
+                                   <th style="width: 100px;">Qty Ordered</th>
+                                   <th style="width: 120px;">Qty to Return</th>
+                                   <th class="text-right" style="width: 100px;">Price</th>
+                               </tr>
+                           </thead>
+                           <tbody>
+                               {% for item in order_products %}
+                               <tr>
+                                   <td class="text-center">
+                                       <input type="checkbox" name="items" value="{{ item.id }}"
+                                              class="item-checkbox" data-price="{{ item.product_price }}">
+                                   </td>
+                                   <td>
+                                       <div class="d-flex align-items-center">
+                                           <img src="{{ item.product.images.url }}" alt="{{ item.product.product_name }}"
+                                                style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border-radius: 4px;">
+                                           <div>
+                                               <strong>{{ item.product.product_name }}</strong>
+                                               {% if item.variations.all %}
+                                                   <br>
+                                                   <small class="text-muted">
+                                                       {% for var in item.variations.all %}
+                                                           {{ var.variation_category }}: {{ var.variation_value }}
+                                                           {% if not forloop.last %}, {% endif %}
+                                                       {% endfor %}
+                                                   </small>
+                                               {% endif %}
+                                           </div>
+                                       </div>
+                                   </td>
+                                   <td class="text-center" style="vertical-align: middle;">
+                                       {{ item.quantity }}
+                                   </td>
+                                   <td style="vertical-align: middle;">
+                                       <input type="number" name="quantity_{{ item.id }}"
+                                              class="form-control form-control-sm qty-input"
+                                              min="1" max="{{ item.quantity }}" value="{{ item.quantity }}" disabled>
+                                   </td>
+                                   <td class="text-right" style="vertical-align: middle;">
+                                       <strong>${{ item.product_price }}</strong>
+                                   </td>
+                               </tr>
+                               {% endfor %}
+                           </tbody>
+                       </table>
+                   </div>
+
+
+                   <!-- Return Type -->
+                   <div class="form-group">
+                       {{ form.return_type.label_tag }}
+                       {{ form.return_type }}
+                       {% if form.return_type.errors %}
+                           <div class="text-danger">{{ form.return_type.errors }}</div>
+                       {% endif %}
+                   </div>
+
+
+                   <!-- Description/Reason -->
+                   <div class="form-group">
+                       {{ form.description.label_tag }}
+                       {{ form.description }}
+                       {% if form.description.errors %}
+                           <div class="text-danger">{{ form.description.errors }}</div>
+                       {% endif %}
+                   </div>
+
+
+
+
+                   <!-- Upload Images -->
+                   <div class="form-group">
+                       <label><strong>Upload Images (1-5 images) <span class="text-danger">*</span></strong></label>
+                       <input type="file" name="images" class="form-control-file" multiple accept="image/*" required>
+                       <small class="form-text text-muted">
+                           <i class="fa fa-info-circle"></i> Upload clear images showing the issue. Maximum 5 images allowed.
+                       </small>
+                   </div>
+
+
+                   <!-- Submit Buttons -->
+                   <div class="text-right mt-4">
+                       <a href="{% url 'my_orders' %}" class="btn btn-secondary">
+                           <i class="fa fa-times"></i> Cancel
+                       </a>
+                       <button type="submit" class="btn btn-danger">
+                           <i class="fa fa-paper-plane"></i> Submit Return Request
+                       </button>
+                   </div>
+               </form>
+
+
+           </div>
+       </div>
+   </div>
+</section>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+   // Enable/disable quantity input based on checkbox
+   const checkboxes = document.querySelectorAll('.item-checkbox');
+   checkboxes.forEach(function(checkbox) {
+       checkbox.addEventListener('change', function() {
+           const row = this.closest('tr');
+           const qtyInput = row.querySelector('.qty-input');
+           qtyInput.disabled = !this.checked;
+           if (!this.checked) {
+               qtyInput.value = qtyInput.max;
+           }
+       });
+   });
+
+
+   // Validate form
+   document.querySelector('form').addEventListener('submit', function(e) {
+       const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+       if (checkedItems.length === 0) {
+           e.preventDefault();
+           alert('Please select at least one item to return.');
+           return false;
+       }
+   });
+});
+</script>
+
+
+<style>
+   .table-bordered td, .table-bordered th {
+       vertical-align: middle;
+   }
+</style>
+
+
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    /* Hiệu ứng xuất hiện */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+
+    /* Card Hover Effect */
+    .card-hover {
+        transition: all 0.3s ease;
+        border: 1px solid #f0f0f0 !important;
+    }
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(33, 82, 255, 0.1) !important;
+        border-color: #2152ff !important;
+    }
+
+    /* Icon Box */
+    .icon-box-soft {
+        width: 50px; height: 50px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px;
+    }
+    .bg-soft-primary { background: #e7f1ff; color: #2152ff; }
+    .bg-soft-info { background: #e0f7fa; color: #00bcd4; }
+</style>
+
+<section class="section-content padding-y" style="background-color: #fff; min-height: 80vh;">
+    {% include 'includes/alerts.html' %}
+
+    <div class="container">
+        <div class="row">
+
+            {% include 'includes/dashboard_sidebar.html' %}
+
+            <main class="col-md-9">
+
+                <article class="card border-0 shadow-sm mb-4 animate-up delay-1"
+                         style="background: linear-gradient(135deg, #2152ff 0%, #21d4fd 100%); border-radius: 20px; overflow: hidden;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center text-white">
+                            <div class="mr-3">
+                                {% if userprofile.profile_picture %}
+                                    <img src="{{ userprofile.profile_picture.url }}" alt="Avatar"
+                                         class="rounded-circle border border-white"
+                                         style="width: 70px; height: 70px; object-fit: cover; border-width: 3px !important;">
+                                {% else %}
+                                    <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center font-weight-bold"
+                                         style="width: 70px; height: 70px; font-size: 28px;">
+                                        {{ user.first_name|slice:":1" }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h4 class="mb-1 font-weight-bold">Hello, {{ user.full_name }}!</h4>
+                                <p class="mb-0" style="opacity: 0.9;">Welcome to your personal dashboard.</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <div class="row animate-up delay-2">
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 border-0 shadow-sm card-hover" style="border-radius: 20px;">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-4">
+                                    <div>
+                                        <h6 class="text-muted text-uppercase mb-1" style="font-size: 12px; letter-spacing: 0.5px;">Total Orders</h6>
+                                        <h2 class="font-weight-bold text-dark mb-0">{{ orders_count }}</h2>
+                                    </div>
+                                    <div class="icon-box-soft bg-soft-primary">
+                                        <i class="fas fa-shopping-bag"></i>
+                                    </div>
+                                </div>
+                                <a href="{% url 'my_orders' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 font-weight-bold">
+                                    View Orders <i class="fas fa-arrow-right ml-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 border-0 shadow-sm card-hover" style="border-radius: 20px;">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h6 class="text-muted text-uppercase mb-1" style="font-size: 12px; letter-spacing: 0.5px;">Account Info</h6>
+                                        <h5 class="font-weight-bold text-dark mb-0">{{ user.first_name }} {{ user.last_name }}</h5>
+                                    </div>
+                                    <div class="icon-box-soft bg-soft-info">
+                                        <i class="fas fa-id-card"></i>
+                                    </div>
+                                </div>
+
+                                <ul class="list-unstyled mb-4">
+                                    <li class="mb-2 text-muted" style="font-size: 14px;">
+                                        <i class="fas fa-envelope mr-2 text-primary" style="width: 20px;"></i> {{ user.email }}
+                                    </li>
+                                    <li class="text-muted" style="font-size: 14px;">
+                                        <i class="fas fa-phone mr-2 text-primary" style="width: 20px;"></i>
+                                        {% if user.phone_number %}
+                                            {{ user.phone_number }}
+                                        {% else %}
+                                            <span class="font-italic text-muted">No phone number</span>
+                                        {% endif %}
+                                    </li>
+                                </ul>
+
+                                <a href="{% url 'edit_profile' %}" class="btn btn-light btn-sm rounded-pill px-3 font-weight-bold text-muted">
+                                    <i class="fas fa-pen mr-1"></i> Edit Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div> </main>
+        </div> </div> </section>
+
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    /* --- CẤU HÌNH CHUNG --- */
+    :root { --font-main: 'Poppins', sans-serif; --text-main: #344767; }
+    body { font-family: var(--font-main); background-color: #f5f7fb; color: var(--text-main); }
+
+    /* --- ANIMATION --- */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; }
+
+    /* --- TABLE CARD STYLE --- */
+    .card-table {
+        border: none; border-radius: 20px;
+        box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
+        background: #fff; overflow: hidden;
+    }
+
+    /* --- TABLE STYLING --- */
+    .table thead th { background-color: #fff; color: #8392ab; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid #f0f2f5; padding: 1rem 1.5rem; }
+    .table tbody td { vertical-align: middle; padding: 1rem 1.5rem; border-top: 1px solid #f1f4f8; font-size: 0.9rem; color: #344767; font-weight: 500; }
+
+    /* Badges Soft (Màu dịu) */
+    .badge-soft-primary { background: #e7f1ff; color: #0d6efd; padding: 0.5em 1em; border-radius: 8px; font-weight: 600; }
+    .badge-soft-success { background: #d1e7dd; color: #0f5132; padding: 0.5em 1em; border-radius: 8px; font-weight: 600; }
+    .badge-soft-danger { background: #f8d7da; color: #842029; padding: 0.5em 1em; border-radius: 8px; font-weight: 600; }
+    .badge-soft-secondary { background: #e2e3e5; color: #41464b; padding: 0.5em 1em; border-radius: 8px; font-weight: 600; }
+    .badge-soft-info { background: #cff4fc; color: #055160; padding: 0.5em 1em; border-radius: 8px; font-weight: 600; }
+
+    /* Button View */
+    .btn-view {
+        background: #f8f9fa; color: #2152ff;
+        padding: 6px 14px; border-radius: 8px;
+        font-weight: 600; font-size: 0.85rem;
+        transition: 0.2s; border: 1px solid transparent;
+        text-decoration: none; display: inline-flex; align-items: center;
+    }
+    .btn-view:hover { background: #e7f1ff; color: #0d6efd; }
+</style>
+
+<section class="section-content padding-y">
+    <div class="container">
+        <div class="row">
+
+            <aside class="col-md-3 animate-up delay-1">
+                {% include 'includes/admin_sidebar.html' %}
+            </aside>
+
+            <main class="col-md-9 animate-up delay-2">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 class="font-weight-bold mb-1">Quản lý đơn hàng</h4>
+                        <p class="text-muted small mb-0">Danh sách toàn bộ đơn hàng trong hệ thống</p>
+                    </div>
+                </div>
+
+                <article class="card card-table">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-items-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="pl-4">Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Grand Total</th>
+                                        <th>Status</th>
+                                        <th>Order Date</th>
+                                        <th class="text-right pr-4">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for order in orders %}
+                                    <tr>
+                                        <td class="pl-4">
+                                            <span class="font-weight-bold text-primary">#{{ order.order_number }}</span>
+                                        </td>
+
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mr-2 text-primary font-weight-bold" style="width: 35px; height: 35px;">
+                                                    {{ order.full_name|slice:":1" }}
+                                                </div>
+                                                <span class="font-weight-bold text-dark">{{ order.full_name }}</span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <span class="font-weight-bold">{{ order.order_total|floatformat:0 }} VND</span>
+                                        </td>
+
+                                        <td>
+                                            {% if order.status == 'New' %}
+                                                <span class="badge badge-soft-primary">New</span>
+                                            {% elif order.status == 'Accepted' %}
+                                                <span class="badge badge-soft-info">Accepted</span>
+                                            {% elif order.status == 'Completed' %}
+                                                <span class="badge badge-soft-success">Completed</span>
+                                            {% elif order.status == 'Cancelled' %}
+                                                <span class="badge badge-soft-danger">Cancelled</span>
+                                            {% else %}
+                                                <span class="badge badge-soft-secondary">{{ order.status }}</span>
+                                            {% endif %}
+                                        </td>
+
+                                        <td>
+                                            <span class="text-secondary text-sm font-weight-bold">{{ order.created_at|date:"d/m/Y" }}</span>
+                                            <br>
+                                            <small class="text-muted">{{ order.created_at|date:"H:i" }}</small>
+                                        </td>
+
+                                        <td class="text-right pr-4">
+                                            <a href="{% url 'order_detail' order.order_number %}" class="btn-view">
+                                                <i class="fas fa-eye mr-2"></i> Detail
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-cart-2130356-1800917.png" width="100" alt="No orders">
+                                            <p class="text-muted mt-3">Chưa có đơn hàng nào.</p>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </article>
+
+            </main>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

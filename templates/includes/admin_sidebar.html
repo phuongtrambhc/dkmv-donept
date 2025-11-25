@@ -1,0 +1,241 @@
+<aside class="modern-sidebar animate-up delay-1">
+    <div class="sidebar-header">
+        <h5 class="brand-text">DKMV <span class="brand-subtitle">Admin</span></h5>
+    </div>
+
+    <div class="sidebar-content">
+
+        <div class="nav-label">OVERVIEW</div>
+        <ul class="nav-list">
+            <li>
+                <a href="{% url 'dashboard' %}" class="nav-link {% if request.path == '/accounts/dashboard/' or request.path == '/accounts/' %}active{% endif %}">
+                    <i class="fas fa-home text-blue"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'management:statistical_reports' %}" class="nav-link {% if 'statistical_reports' in request.path %}active{% endif %}">
+                    <i class="fas fa-chart-pie text-purple {% if 'statistical_reports' in request.path %}active-icon{% endif %}"></i>
+                    <span class="nav-text">Statistical Reports</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="nav-label mt-4">STORE MANAGEMENT</div>
+        <ul class="nav-list">
+            <li>
+                <a href="{% url 'order_management' %}" class="nav-link {% if 'order' in request.path %}active{% endif %}">
+                    <i class="fas fa-shopping-cart text-pink"></i>
+                    <span class="nav-text">Orders Management</span>
+                    {% if pending_orders > 0 %}
+                        <span class="badge-pink">{{ pending_orders }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'staff_product_list' %}" class="nav-link {% if 'product' in request.path or 'category' in request.path %}active{% endif %}">
+                    <i class="fas fa-tshirt text-danger"></i>
+                    <span class="nav-text">Products Management</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_customer_list' %}" class="nav-link {% if 'customer' in request.path %}active{% endif %}">
+                    <i class="fas fa-users text-orange"></i>
+                    <span class="nav-text">Customers</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'returns:admin_return_list' %}" class="nav-link {% if 'return' in request.path %}active{% endif %}" >
+                       <i class="fa fa-undo"></i> Return Requests Management
+                </a>
+            </li>
+        </ul>
+
+        <div class="nav-label mt-4">SYSTEM</div>
+        <ul class="nav-list">
+            <li>
+                <a href="{% url 'coupons:coupon_list' %}" class="nav-link {% if 'coupons' in request.path %}active{% endif %}">
+                    <i class="fas fa-ticket-alt text-teal"></i>
+                    <span class="nav-text">Coupon</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="sidebar-footer">
+        <div class="user-mini">
+            <div class="user-avatar">
+                <span>{{ user.first_name|slice:":1" }}</span>
+            </div>
+            <div class="user-details">
+                <span class="name">{{ user.first_name }} {{ user.last_name }}</span>
+                <span class="role">Super Admin</span>
+            </div>
+            <a href="{% url 'logout' %}" class="logout-btn" title="Sign out">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </div>
+</aside>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    :root {
+        --sidebar-width: 260px;
+        --text-primary: #344767;
+        --text-secondary: #8392ab;
+        --active-blue: #2152ff;
+        --active-purple: #7928ca;
+    }
+
+    /* --- SIDEBAR CONTAINER --- */
+    .modern-sidebar {
+        width: var(--sidebar-width);
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-right: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.03);
+        display: flex; flex-direction: column;
+        padding: 20px 15px;
+        position: sticky; top: 0; z-index: 1000;
+    }
+
+    /* --- HEADER --- */
+    .sidebar-header { padding: 15px 15px 35px 15px; }
+    .brand-text {
+        margin: 0; font-weight: 800; font-size: 26px;
+        background: linear-gradient(135deg, #2152ff 0%, #21d4fd 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        font-family: 'Poppins', sans-serif; letter-spacing: -0.5px;
+    }
+    .brand-subtitle { font-weight: 500; font-size: 14px; color: var(--text-secondary); -webkit-text-fill-color: var(--text-secondary); }
+
+    /* --- CONTENT --- */
+    .sidebar-content { flex: 1; overflow-y: auto; padding-right: 5px; }
+    .sidebar-content::-webkit-scrollbar { width: 4px; }
+    .sidebar-content::-webkit-scrollbar-thumb { background: #e9ecef; border-radius: 4px; }
+
+    /* Labels */
+    .nav-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 12px; padding-left: 18px; letter-spacing: 0.8px; opacity: 0.8; }
+    .mt-4 { margin-top: 25px !important; }
+
+    /* Links */
+    .nav-list { list-style: none; padding: 0; margin: 0; }
+    .nav-list li { margin-bottom: 6px; }
+
+    .nav-link {
+        display: flex; align-items: center; padding: 12px 18px;
+        border-radius: 15px; text-decoration: none; color: var(--text-primary);
+        font-weight: 500; font-size: 15px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        font-family: 'Poppins', sans-serif; border: 1px solid transparent;
+    }
+
+    .nav-link i { font-size: 18px; margin-right: 16px; width: 24px; text-align: center; transition: 0.3s; }
+
+    /* Hover */
+    .nav-link:hover { background: rgba(255, 255, 255, 0.6); color: var(--active-blue); transform: translateX(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+    .nav-link:hover i { transform: scale(1.1); }
+
+    /* Active State */
+    .nav-link.active { background: #ffffff; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); color: var(--active-blue); font-weight: 600; }
+    .nav-link.active i {
+        background: linear-gradient(135deg, #2152ff 0%, #21d4fd 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 2px 4px rgba(33, 82, 255, 0.3));
+    }
+    .nav-link.active .active-icon.text-purple {
+        background: linear-gradient(135deg, #7928ca 0%, #ff0080 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 2px 4px rgba(121, 40, 202, 0.3));
+    }
+
+    /* Colors */
+    .text-blue { color: var(--active-blue); }
+    .text-purple { color: var(--active-purple); }
+    .text-pink { color: #ec4899; }
+    .text-orange { color: #f97316; }
+    .text-teal { color: #14b8a6; }
+    .text-danger { color: #f53939; }
+    .text-gray { color: var(--text-secondary); }
+    .badge-pink { margin-left: auto; background: rgba(236, 72, 153, 0.1); color: #ec4899; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 700; }
+
+    /* --- FOOTER FIX CỨNG --- */
+.sidebar-footer {
+    margin-top: auto; /* Đẩy xuống đáy */
+    padding-top: 20px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.user-mini {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.02);
+    /* Dùng gap để tạo khoảng cách an toàn giữa 3 phần tử: Avatar - Text - Nút Logout */
+    gap: 12px;
+}
+
+/* 1. Phần Avatar: Không cho phép co lại */
+.user-avatar span {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #2196f3, #00bcd4);
+    border-radius: 12px;
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 20px;
+    flex-shrink: 0; /* Quan trọng: Giữ nguyên kích thước, không bị bóp méo */
+}
+
+/* 2. Phần Text: Xếp dọc và reset margin */
+.user-details {
+    display: flex;
+    flex-direction: column; /* Xếp chồng dọc */
+    justify-content: center;
+    flex: 1; /* Chiếm hết khoảng trống ở giữa */
+    min-width: 0; /* Fix lỗi text tràn ra ngoài flex container */
+}
+
+.user-details .name {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #344767;
+    /* Reset khoảng cách dòng */
+    line-height: 1.2 !important;
+    margin-bottom: 4px !important; /* Đẩy dòng dưới ra 4px */
+
+    /* Cắt chữ nếu quá dài */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-details .role {
+    display: block;
+    font-size: 11px;
+    color: #00c853; /* Màu xanh lá */
+    font-weight: 700;
+    text-transform: uppercase;
+    /* Reset khoảng cách dòng */
+    line-height: 1 !important;
+    margin: 0 !important;
+}
+
+/* 3. Nút Logout: Đẩy nhẹ sang phải */
+.logout-btn {
+    color: #90a4ae;
+    font-size: 18px;
+    flex-shrink: 0; /* Không bị bóp */
+    padding: 5px;
+    transition: 0.2s;
+    display: flex;
+}
+.logout-btn:hover { color: #f44336; }
+</style>

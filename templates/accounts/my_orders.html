@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+</style>
+
+<section class="section-content padding-y" style="background-color: #fff; min-height: 80vh;">
+    {% include 'includes/alerts.html' %}
+
+    <div class="container">
+        <div class="row">
+
+            {% include 'includes/dashboard_sidebar.html' %}
+
+            <main class="col-md-9 animate-up delay-2">
+
+                <article class="card border-0 shadow-sm" style="border-radius: 20px; border: 1px solid #f0f0f0;">
+
+                    <header class="card-header bg-white border-bottom-0 pt-4 pl-4" style="border-radius: 20px 20px 0 0;">
+                        <h5 class="d-inline-block font-weight-bold text-dark mb-0">
+                            <i class="fas fa-shopping-bag text-primary mr-2"></i> Your Order History
+                        </h5>
+                    </header>
+
+                    <div class="card-body">
+                        {% if orders %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-items-center">
+                                    <thead class="bg-light text-uppercase">
+                                        <tr class="text-muted small font-weight-bold" style="background-color: #f9fafb;">
+                                            <th class="border-0 rounded-left pl-3">Order #</th>
+                                            <th class="border-0">Billing Name</th>
+                                            <th class="border-0">Phone</th>
+                                            <th class="border-0">Total</th>
+                                            <th class="border-0">Date</th>
+                                            <th class="border-0 rounded-right text-right pr-3">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in orders %}
+                                        <tr>
+                                            <td class="pl-3">
+                                                <a href="{% url 'order_detail' order.order_number %}" class="font-weight-bold text-dark text-decoration-none">
+                                                    {{ order.order_number }}
+                                                </a>
+                                            </td>
+                                            <td>{{ order.full_name }}</td>
+                                            <td>{{ order.phone }}</td>
+                                            <td class="font-weight-bold text-dark">${{ order.order_total }}</td>
+                                            <td class="text-muted">{{ order.created_at|date:"M d, Y" }}</td>
+                                            <td class="text-right pr-3">
+                                                <a href="{% url 'order_detail' order.order_number %}"
+                                                   class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm font-weight-bold">
+                                                    View Order
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        {% else %}
+                            <div class="text-center py-5">
+                                <div class="mb-3">
+                                    <span class="fa-stack fa-2x">
+                                       <i class="fas fa-circle fa-stack-2x" style="color: #f1f3f5;"></i>
+                                       <i class="fas fa-shopping-basket fa-stack-1x text-muted"></i>
+                                    </span>
+                                </div>
+                                <h6 class="text-dark font-weight-bold">No orders found</h6>
+                                <p class="text-muted small mb-4">You haven't placed any orders yet.</p>
+                                <a href="{% url 'store' %}" class="btn btn-primary rounded-pill px-4 shadow-sm"
+                                   style="background: linear-gradient(135deg, #2152ff 0%, #21d4fd 100%); border:none;">
+                                    Start Shopping
+                                </a>
+                            </div>
+                        {% endif %}
+
+                    </div> </article> </main>
+        </div> </div> </section>
+
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    body { font-family: 'Poppins', sans-serif; background-color: #f5f7fb; }
+
+    .card {
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.05);
+    }
+
+    /* ĐÃ SỬA: Đã làm gọn style nút add */
+    .btn-add {
+        background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 18px;
+        font-weight: 600;
+        transition: 0.25s;
+        text-transform: uppercase; /* Thêm uppercase cho nút */
+    }
+
+    .btn-add:hover { transform: translateY(-2px); }
+
+    .table thead th {
+        background: #fff;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        color: #8392ab;
+        border-bottom: 1px solid #ececec;
+    }
+
+    .table td {
+        vertical-align: middle;
+        font-weight: 500;
+    }
+
+    .btn-back {
+        border-radius: 12px;
+        font-weight: 600;
+        padding: 8px 20px;
+    }
+
+    /* Tùy chỉnh nút Sửa/Xóa trong bảng */
+    .table .btn-outline-info {
+        border-radius: 8px;
+        border-color: #21d4fd;
+        color: #21d4fd;
+        font-weight: 600;
+    }
+    .table .btn-outline-danger {
+        border-radius: 8px;
+        font-weight: 600;
+    }
+</style>
+
+<section class="section-content padding-y" style="background-color:#f5f7fb; min-height: 10vh;">
+    <div class="container">
+        <div class="row">
+
+            <aside class="col-md-3">
+                {% include 'includes/admin_sidebar.html' %}
+            </aside>
+
+            <main class="col-md-9">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="font-weight-bold" style="color:#344767;">
+                        <b>{{ product.product_name }}</b>
+                    </h4>
+
+                    <a href="{% url 'staff_variant_create' product.id %}" class="btn-add">
+                        Add
+                    </a>
+                </div>
+
+                <article class="card">
+                    <div class="card-body p-0">
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-items-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>COLOR</th>
+                                        <th>SIZE</th>
+                                        <th>STOCK</th>
+                                        <th class="text-right pr-4">ACTION</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for v in combos %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ v.color }}</td>
+                                        <td>{{ v.size }}</td>
+                                        <td>{{ v.stock }}</td>
+
+                                        <td class="text-right pr-4">
+                                            <a href="{% url 'staff_variant_update' v.id %}" class="btn btn-sm btn-outline-info">
+                                                Edit
+                                            </a>
+                                            <a href="{% url 'staff_variant_delete' v.id %}"
+                                               onclick="return confirm('Delete this variant combo?');"
+                                               class="btn btn-sm btn-outline-danger">
+                                                Delete
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            No variants found.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+
+                            </table>
+                        </div>
+
+                    </div>
+                </article>
+
+                <a href="{% url 'staff_product_list' %}" class="btn btn-secondary btn-back mt-4">
+                    Back to Products
+                </a>
+
+            </main>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

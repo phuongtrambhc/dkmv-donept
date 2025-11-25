@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    /* --- GLOBAL VARIABLES & RESET --- */
+    :root {
+        --primary: #2152ff;
+        --text-dark: #344767;
+        --text-gray: #8392ab;
+        --bg-body: #f5f7fb;
+        /* MÀU NHẤN MỚI (XANH DƯƠNG GRADIENT) */
+        --accent-gradient: linear-gradient(310deg, var(--primary) 0%, #21d4fd 100%);
+        --accent-color: var(--primary); /* Dùng màu xanh chủ đạo cho viền */
+    }
+    body { font-family: 'Poppins', sans-serif; color: var(--text-dark); background-color: var(--bg-body); }
+
+    /* --- ANIMATIONS --- */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+
+    /* --- CARD STYLING --- */
+    .card {
+        border: none;
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
+        transition: 0.3s ease;
+        overflow: visible; /* Giữ overflow visible cho form */
+    }
+
+    /* === HEADER BANNER (PHẦN TẠO MỚI) === */
+    .form-header-banner {
+        background: var(--accent-gradient); /* ÁP DỤNG GRADIENT XANH */
+        color: white;
+        /* ĐÃ LÀM NHỎ PADDING: Giảm từ 25px 30px xuống 20px 30px */
+        padding: 20px 30px;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .form-header-banner h4 {
+        margin-bottom: 0;
+        font-weight: 700;
+        z-index: 2;
+        font-size: 1.5rem; /* Có thể làm nhỏ text nếu muốn nữa */
+    }
+    .btn-back-coupon {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 10px;
+        padding: 8px 15px;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+    .btn-back-coupon:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    /* === FORM & INPUT STYLING === */
+    label {
+        font-weight: 600;
+        margin-top: 0;
+        display: block;
+    }
+    .form-control {
+        border-radius: 10px;
+        border: 1px solid #e9ecef;
+        padding: 12px 15px;
+        box-shadow: none;
+        transition: 0.3s;
+        font-weight: 500;
+    }
+    .form-control:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(33, 82, 255, 0.1); /* Shadow Xanh */
+    }
+    textarea { min-height: 150px; }
+
+    /* === FORM GROUPING STYLE === */
+    .form-section-title {
+        color: var(--accent-color); /* MÀU XANH CHO TIÊU ĐỀ MỤC */
+        font-weight: 700;
+        font-size: 1.1rem;
+        border-left: 4px solid var(--accent-color);
+        padding-left: 10px;
+        margin-bottom: 25px;
+        margin-top: 30px;
+    }
+
+    /* === BUTTON STYLING (LƯU) === */
+    .btn-save-primary {
+        background: var(--accent-gradient); /* ÁP DỤNG GRADIENT XANH */
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-weight: 600;
+        box-shadow: 0 4px 7px rgba(33, 82, 255, 0.3); /* Shadow Xanh */
+        transition: 0.3s;
+        text-transform: uppercase;
+    }
+    .btn-save-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(33, 82, 255, 0.4);
+        color: white;
+    }
+
+    /* STATUS CHECKBOX */
+    .status-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+</style>
+
+
+<section class="section-content padding-y" style="background-color: var(--bg-body); min-height: 100vh;">
+    <div class="container">
+        <div class="row">
+            <aside class="col-md-3 animate-up delay-1">
+                {% include 'includes/admin_sidebar.html' %}
+            </aside>
+
+            <main class="col-md-9 animate-up delay-2">
+
+                <article class="card p-0">
+
+                    <div class="form-header-banner">
+                        <h4>
+                            {% if product %}
+                                Edit Product
+                            {% else %}
+                                Add New Product
+                            {% endif %}
+                        </h4>
+                        <a href="{% url 'staff_product_list' %}" class="btn-back-coupon">
+                            ← Back
+                        </a>
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            {% include 'includes/alerts.html' %}
+
+                            <h5 class="form-section-title">BASIC INFORMATION</h5>
+
+                            <div class="form-group mb-4">
+                                <label for="id_product_name">Product name:</label>
+                                {{ form.product_name }}
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="id_slug">Slug:</label>
+                                {{ form.slug }}
+                                <small class="form-text text-muted">URL path. Use lowercase, no spaces.</small>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="id_description">Description:</label>
+                                {{ form.description }}
+                            </div>
+
+                            <hr class="my-5">
+
+                            <h5 class="form-section-title">PRICING & CATEGORY</h5>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6 mb-4">
+                                    <label for="id_price">Price (VNĐ):</label>
+                                    {{ form.price }}
+                                </div>
+                                <div class="form-group col-md-6 mb-4">
+                                    <label for="id_category">Category:</label>
+                                    {{ form.category }}
+                                </div>
+                            </div>
+
+                            <hr class="my-5">
+
+                            <h5 class="form-section-title">IMAGES & STATUS</h5>
+
+                            <div class="form-group mb-4">
+                                <label for="id_images">Images:</label>
+                                {{ form.images }}
+                                {% if product.images %}
+                                    <small class="form-text text-muted mt-2">Current image: <img src="{{ product.images.url }}" style="max-height: 50px; border-radius: 5px;"></small>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="id_is_available">Status:</label>
+                                <div class="status-group">
+                                    {{ form.is_available }}
+                                    <label for="id_is_available" class="mb-0">
+                                        Available for Sale
+                                    </label>
+                                </div>
+                            </div>
+
+
+                            <hr class="my-5">
+
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-save-primary">
+                                    {% if product %}
+                                        SAVE CHANGES
+                                    {% else %}
+                                        CREATE PRODUCT
+                                    {% endif %}
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </article>
+
+            </main>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

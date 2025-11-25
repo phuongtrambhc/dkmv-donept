@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+
+    /* TEXT GRADIENT (Chữ màu chuyển sắc) */
+    .text-gradient {
+        background: linear-gradient(135deg, #2152ff 0%, #21d4fd 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+    }
+
+    /* COUPON CARD STYLE */
+    .coupon-card {
+        border: 1px solid #f0f0f0;
+        border-radius: 16px;
+        background: #fff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .coupon-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(33, 82, 255, 0.08);
+        border-color: #e0e7ff;
+    }
+
+    /* Phần trên của coupon */
+    .coupon-top {
+        background: #f8faff; /* Nền xanh siêu nhạt */
+        padding: 20px;
+        text-align: center;
+        border-bottom: 2px dashed #dbeafe; /* Đường kẻ đứt */
+        position: relative;
+    }
+
+    /* 2 hình tròn khuyết ở giữa mô phỏng vé */
+    .coupon-card::before, .coupon-card::after {
+        content: "";
+        position: absolute;
+        width: 20px; height: 20px;
+        background: #fff; /* Trùng màu nền body */
+        border-radius: 50%;
+        top: 35%; /* Vị trí đường kẻ đứt */
+        z-index: 2;
+    }
+    .coupon-card::before { left: -12px; }
+    .coupon-card::after { right: -12px; }
+
+    /* Nút Copy Code */
+    .code-box {
+        background: #f1f3f5;
+        border-radius: 50px;
+        padding: 5px 5px 5px 15px;
+        display: flex; justify-content: space-between; align-items: center;
+        border: 1px solid #e9ecef;
+    }
+</style>
+
+<section class="section-content padding-y" style="background-color: #fff; min-height: 80vh;">
+    {% include 'includes/alerts.html' %}
+
+    <div class="container">
+        <div class="row">
+
+            {% include 'includes/dashboard_sidebar.html' %}
+
+            <main class="col-md-9 animate-up delay-2">
+
+                <article class="card border-0 shadow-sm" style="border-radius: 20px; border: 1px solid #f0f0f0;">
+
+                    <header class="card-header bg-white border-bottom-0 pt-4 pl-4" style="border-radius: 20px 20px 0 0;">
+                        <div class="d-flex justify-content-between align-items-center pr-4">
+                            <div>
+                                <h5 class="d-inline-block font-weight-bold text-dark mb-0">
+                                    <i class="fas fa-ticket-alt text-primary mr-2"></i> Your Coupons
+                                </h5>
+                                <p class="text-muted small mb-0 mt-1 ml-4 pl-1">You have {{ coupons|length }} active coupons available.</p>
+                            </div>
+                            <a href="{% url 'store' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 font-weight-bold d-none d-md-block">
+                                Store <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </header>
+
+                    <div class="card-body">
+
+                        <div class="row">
+                            {% if coupons %}
+                                {% for coupon in coupons %}
+                                <div class="col-md-12 col-lg-6 mb-4">
+                                    <div class="coupon-card h-100">
+
+                                        <div class="coupon-top">
+                                            <h5 class="text-muted small text-uppercase font-weight-bold mb-1">Discount</h5>
+                                            <h2 class="mb-0 text-gradient display-4" style="font-size: 2.5rem;">{{ coupon.discount }}%</h2>
+                                            {% if coupon.max_discount_amount > 0 %}
+                                                <span class="badge badge-pill badge-light text-muted mt-2 border">Max: {{ coupon.max_discount_amount|floatformat:0 }}đ</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="p-3">
+                                            <div class="mb-3">
+                                                <p class="mb-1 font-weight-bold text-dark text-center">{{ coupon.description|default:"Special offer for you" }}</p>
+                                                <div class="d-flex justify-content-center mt-2">
+                                                    <span class="badge badge-dot mr-3">
+                                                        <i class="fas fa-calendar-alt text-primary mr-1"></i> Exp: {{ coupon.valid_to|date:"d/m/Y" }}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div class="code-box mt-3">
+                                                <strong class="text-dark tracking-wide" id="coupon-{{ coupon.id }}" style="letter-spacing: 1px;">{{ coupon.code }}</strong>
+                                                <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm copy-btn"
+                                                        style="background: #2152ff; border:none;"
+                                                        onclick="copyCouponCode('coupon-{{ coupon.id }}', this)">
+                                                    Copy
+                                                </button>
+                                            </div>
+
+                                            <div class="mt-3 text-center">
+                                                <a class="small text-muted text-decoration-none" data-toggle="collapse" href="#details-{{ coupon.id }}" role="button">
+                                                    View Details <i class="fas fa-chevron-down ml-1"></i>
+                                                </a>
+                                                <div class="collapse mt-2 text-left small bg-light p-2 rounded" id="details-{{ coupon.id }}">
+                                                    <ul class="list-unstyled mb-0">
+                                                        <li>• <strong>Scope:</strong>
+                                                            {% if coupon.applies_to == 'ALL' %}All Products
+                                                            {% else %}Specific Categories{% endif %}
+                                                        </li>
+                                                        {% if coupon.min_purchase_amount > 0 %}
+                                                            <li>• <strong>Min Order:</strong> {{ coupon.min_purchase_amount|floatformat:0 }}đ</li>
+                                                        {% endif %}
+                                                        <li>• <strong>Valid from:</strong> {{ coupon.valid_from|date:"d/m/Y" }}</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+
+                            {% else %}
+                                <div class="col-12 text-center py-5">
+                                    <div class="mb-3">
+                                        <span class="fa-stack fa-2x">
+                                           <i class="fas fa-circle fa-stack-2x" style="color: #f1f3f5;"></i>
+                                           <i class="fas fa-ticket-alt fa-stack-1x text-muted"></i>
+                                        </span>
+                                    </div>
+                                    <h6 class="text-dark font-weight-bold">No coupons found</h6>
+                                    <p class="text-muted small mb-4">You don't have any active coupons at the moment.</p>
+                                    <a href="{% url 'store' %}" class="btn btn-primary rounded-pill px-4 shadow-sm" style="background: linear-gradient(135deg, #2152ff 0%, #21d4fd 100%); border:none;">
+                                        Start Shopping
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </article>
+
+            </main>
+        </div>
+    </div>
+</section>
+
+<script>
+   function copyCouponCode(elementId, button) {
+       var copyText = document.getElementById(elementId).textContent.trim();
+       navigator.clipboard.writeText(copyText);
+
+       var originalText = button.innerHTML;
+       var originalBgColor = button.style.background;
+       var originalWidth = button.offsetWidth; // Giữ nguyên chiều rộng nút
+
+       button.style.width = originalWidth + 'px';
+       button.innerHTML = '<i class="fas fa-check"></i>';
+       button.style.background = '#28a745'; // Xanh lá
+
+       setTimeout(function() {
+           button.innerHTML = 'Copy';
+           button.style.background = '#2152ff';
+       }, 1500);
+   }
+</script>
+
+{% endblock %}

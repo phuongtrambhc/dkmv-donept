@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    /* 1. HERO SECTION */
+    .intro-banner-wrap {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .intro-banner-wrap img {
+        width: 100%;
+        height: 400px; /* Chiều cao cố định cho banner */
+        object-fit: cover; /* Cắt ảnh chuẩn không bị méo */
+        filter: brightness(0.85); /* Làm tối ảnh xíu để chữ nổi hơn */
+    }
+    .banner-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #fff;
+        z-index: 10;
+        width: 100%;
+        padding: 0 20px;
+    }
+    .banner-content h2 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    }
+    .banner-content p {
+        font-size: 1.2rem;
+        margin-bottom: 25px;
+        text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+    }
+    .btn-warning-highlight {
+        background-color: #ff9900;
+        color: white;
+        border: none;
+        padding: 10px 30px;
+        font-size: 1.1rem;
+        border-radius: 30px;
+        transition: all 0.3s;
+    }
+    .btn-warning-highlight:hover {
+        background-color: #e68a00;
+        transform: scale(1.05);
+    }
+
+    /* 2. PRODUCT CARDS */
+    .card-product-grid {
+        border: 1px solid #eee;
+        border-radius: 12px;
+        transition: all 0.3s ease-in-out;
+        margin-bottom: 20px;
+        background: #fff;
+    }
+    .card-product-grid:hover {
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        transform: translateY(-5px);
+        border-color: transparent;
+    }
+    .card-product-grid .img-wrap {
+        border-radius: 12px 12px 0 0;
+        height: 250px; /* Chiều cao ảnh đồng bộ */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f9f9f9;
+        overflow: hidden;
+    }
+    .card-product-grid .img-wrap img {
+        max-height: 100%;
+        max-width: 100%;
+        transition: transform 0.5s;
+    }
+    .card-product-grid:hover .img-wrap img {
+        transform: scale(1.1); /* Phóng to ảnh nhẹ khi hover */
+    }
+    .info-wrap {
+        padding: 15px;
+    }
+    .title {
+        font-weight: 600;
+        color: #333;
+        text-decoration: none;
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; /* Cắt tên dài quá bằng dấu ... */
+    }
+    .price {
+        font-weight: 700;
+        color: #2152ff; /* Màu xanh chủ đạo */
+        font-size: 1.1rem;
+    }
+
+    /* 3. FEATURES SECTION */
+    .feature-box {
+        text-align: center;
+        padding: 20px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        height: 100%;
+        border: 1px solid #f0f0f0;
+    }
+    .feature-box i {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        background: -webkit-linear-gradient(#2152ff, #21d4fd);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Định nghĩa biến màu chủ đạo */
+    :root {
+        --primary: #2152ff;
+        --dashboard-gradient: linear-gradient(120deg, #2152ff 0%, #21d4fd 100%);
+        --text-dark: #344767;
+    }
+
+    /* === BỔ SUNG FIX: GRADIENT CHO NÚT PRIMARY (View Details) === */
+    .btn-primary {
+        /* Áp dụng Gradient */
+        background: var(--dashboard-gradient) !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: 0 4px 10px rgba(33, 82, 255, 0.3);
+        transition: all 0.3s;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(33, 82, 255, 0.4);
+    }
+    /* === HẾT BỔ SUNG FIX === */
+
+    /* Custom CSS to remove border-right on mobile */
+    @media (max-width: 768px) {
+        .feature-box.border-right {
+            border-right: none !important;
+            border-bottom: 1px dashed #ddd;
+            padding-bottom: 30px;
+        }
+    }
+
+    /* CUSTOM FIX: Thiết lập lại căn chỉnh cho nút See All Products */
+    .section-heading-custom {
+        display: flex;
+        justify-content: flex-start; /* Quan trọng: Căn nút sang trái */
+        align-items: center;
+        margin-bottom: 40px !important;
+        height: 50px; /* Đảm bảo chiều cao tối thiểu cho layout không bị xê dịch */
+    }
+    .section-heading-custom .section-title-hidden {
+        display: none; /* Ẩn tiêu đề cũ */
+    }
+    .section-heading-custom .btn {
+        margin-left: 0 !important; /* Đảm bảo không có margin trái không cần thiết */
+        margin-right: auto; /* Đẩy nút sang trái cùng */
+    }
+
+    /* THÊM FIX CSS ĐỂ CÂN ĐỐI KHOẢNG CÁCH */
+    /* Giảm padding dưới khối Features */
+    .section-features {
+        padding-bottom: 20px !important;
+    }
+    /* Giảm padding trên khối nút */
+    .section-name {
+        padding-top: 20px !important;
+    }
+
+</style>
+
+<section class="section-intro container-fluid p-0">
+    <div id="homeCarousel" class="carousel slide" data-ride="carousel">
+        <ol class="carousel-indicators">
+            <li data-target="#homeCarousel" data-slide-to="0" class="active"></li>
+            <li data-target="#homeCarousel" data-slide-to="1"></li>
+        </ol>
+
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="intro-banner-wrap">
+                    <img src="{% static 'images/banners/1.jpg' %}" alt="New Season">
+                    <div class="banner-content text-white">
+                        <h2 class="display-4 font-weight-bold" style="text-shadow: 2px 2px 10px rgba(0,0,0,0.5);">New Season Arrivals</h2>
+                        <p class="lead d-none d-md-block" style="text-shadow: 1px 1px 5px rgba(0,0,0,0.5);">Check out all the new trends for this season</p>
+                        <a href="{% url 'store' %}" class="btn btn-warning-highlight shadow mt-3">Start Shopping</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="carousel-item">
+                <div class="intro-banner-wrap">
+                    <img src="{% static 'images/banners/2.png' %}" alt="Summer Sale"> <div class="banner-content text-white">
+                        <h2 class="display-4 font-weight-bold" style="text-shadow: 2px 2px 10px rgba(0,0,0,0.5);">Big Summer Sale</h2>
+                        <p class="lead d-none d-md-block" style="text-shadow: 1px 1px 5px rgba(0,0,0,0.5);">Up to 50% off on selected items</p>
+                        <a href="{% url 'store' %}" class="btn btn-light shadow mt-3 text-primary font-weight-bold">View Deals</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <a class="carousel-control-prev" href="#homeCarousel" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#homeCarousel" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+    </div>
+</section>
+
+<section class="section-features padding-y-lg bg-white" style="padding-bottom: 20px !important;">
+    <div class="container">
+        <div class="row text-center">
+
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="feature-box border-right h-100 d-flex flex-column align-items-center justify-content-center p-4" style="border-right: 1px dashed #ddd;">
+                    <div class="icon-wrap mb-3 text-primary">
+                        <i class="fas fa-copyright fa-3x"></i>
+                    </div>
+                    <h5 class="font-weight-bold text-dark text-uppercase mb-2">EXCLUSIVE BRAND</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem; line-height: 1.6;">
+                        Genuine origin. Made in Vietnam.<br>
+                        Copyright owned by RAYMA CORP.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="feature-box border-right h-100 d-flex flex-column align-items-center justify-content-center p-4" style="border-right: 1px dashed #ddd;">
+                    <div class="icon-wrap mb-3 text-primary">
+                         <i class="fas fa-pencil-ruler fa-3x"></i>
+                    </div>
+                    <h5 class="font-weight-bold text-dark text-uppercase mb-2">CREATIVE DESIGN</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem; line-height: 1.6;">
+                        Unique and stylish designs of DKMV.<br>
+                        Created by RAYMA Studio.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-box h-100 d-flex flex-column align-items-center justify-content-center p-4">
+                    <div class="icon-wrap mb-3 text-primary">
+                        <i class="fas fa-shopping-bag fa-3x"></i>
+                    </div>
+                    <h5 class="font-weight-bold text-dark text-uppercase mb-2">BETTER DEALS THAN MARKETPLACES</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem; line-height: 1.6;">
+                        Excellent customer service when shopping at<br>
+                        DKMV's official website.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="section-name padding-y-sm" style="padding-top: 20px !important;">
+    <div class="container">
+
+        <header class="section-heading section-heading-custom">
+            <h3 class="section-title section-title-hidden">Popular Products</h3>
+
+            <a href="{% url 'store' %}" class="btn btn-outline-primary rounded-pill px-4">See All Products</a>
+        </header>
+
+        <div class="row">
+            {% for product in products %}
+            <div class="col-md-3 col-sm-6">
+                <div class="card card-product-grid">
+                    <a href="{{ product.get_url }}" class="img-wrap">
+                        <img src="{{ product.images.url }}" alt="{{ product.product_name }}">
+                    </a>
+                    <figcaption class="info-wrap">
+                        <a href="{{ product.get_url }}" class="title">{{ product.product_name }}</a>
+
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <div class="price-wrap">
+                                <span class="price">${{ product.price }}</span>
+                                </div>
+
+                            <div class="rating-wrap">
+                                <ul class="rating-stars list-inline mb-0" style="font-size: 0.7rem; color: #ffb503;">
+                                    <li class="list-inline-item m-0"><i class="fa fa-star"></i></li>
+                                    <li class="list-inline-item m-0"><i class="fa fa-star"></i></li>
+                                    <li class="list-inline-item m-0"><i class="fa fa-star"></i></li>
+                                    <li class="list-inline-item m-0"><i class="fa fa-star"></i></li>
+                                    <li class="list-inline-item m-0"><i class="fa fa-star-half-alt"></i></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <a href="{{ product.get_url }}" class="btn btn-block btn-primary mt-3 rounded-pill">View Details</a>
+                    </figcaption>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
